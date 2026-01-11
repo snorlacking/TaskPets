@@ -234,6 +234,7 @@ body {
     align-items: center;
     justify-content: center;
     animation: breathe 3s ease-in-out infinite;
+    flex-shrink: 0;
 }
 
 .pet-info-expanded {
@@ -241,6 +242,7 @@ body {
     flex-direction: column;
     gap: 0.5rem;
     min-width: 150px;
+    flex-shrink: 0;
 }
 
 .pet-stats-expanded {
@@ -248,6 +250,101 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     flex: 1;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .pet-section-expanded {
+        padding: 1rem;
+    }
+    
+    .pet-container-expanded {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: stretch;
+    }
+    
+    .pet-visual-expanded {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto;
+    }
+    
+    .pet-info-expanded {
+        min-width: auto;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .pet-stats-expanded {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .pet-stats-expanded .stat-bar label {
+        font-size: 0.95rem;
+    }
+    
+    .pet-stats-expanded .stat-bar-container {
+        height: 35px;
+    }
+    
+    .pet-stats-expanded .stat-value {
+        font-size: 0.95rem;
+    }
+    
+    .top-bar {
+        padding: 0.75rem 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .top-bar .right-controls {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .modal-content {
+        padding: 1.5rem;
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .file-input-label {
+        max-width: 100%;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .pet-section-expanded {
+        padding: 0.75rem;
+    }
+    
+    .pet-visual-expanded {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .pet-stats-expanded {
+        gap: 0.75rem;
+    }
+    
+    .pet-stats-expanded .stat-bar label {
+        font-size: 0.85rem;
+    }
+    
+    .pet-stats-expanded .stat-bar-container {
+        height: 30px;
+    }
+    
+    .pet-stats-expanded .stat-value {
+        font-size: 0.85rem;
+    }
+    
+    .modal-content {
+        padding: 1rem;
+    }
 }
 
 .pet-stats-expanded .stat-bar {

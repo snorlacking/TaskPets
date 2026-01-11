@@ -97,6 +97,33 @@ async function initTasks() {
             if (!task.hasOwnProperty('minimized')) {
                 task.minimized = false;
             }
+            // Add goal fields if missing
+            if (!task.hasOwnProperty('isGoal')) {
+                task.isGoal = false;
+            }
+            if (!task.hasOwnProperty('history')) {
+                task.history = [];
+            }
+            if (!task.hasOwnProperty('lastCompleted')) {
+                task.lastCompleted = null;
+            }
+            // For goals: calculate streak and lastCompleted from history (database source of truth)
+            if (task.isGoal) {
+                // Always calculate streak from history (database is source of truth)
+                task.streak = calculateStreakFromHistory(task.history || []);
+                // Always set lastCompleted from the most recent history entry (database source of truth)
+                if (task.history && task.history.length > 0) {
+                    const sortedHistory = [...task.history].sort((a, b) => b.date - a.date);
+                    task.lastCompleted = sortedHistory[0].date;
+                } else {
+                    task.lastCompleted = null;
+                }
+            } else {
+                // Not a goal, ensure streak is not set
+                if (!task.hasOwnProperty('streak')) {
+                    task.streak = 0;
+                }
+            }
             return task;
         });
         

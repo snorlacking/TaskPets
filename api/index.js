@@ -98,7 +98,7 @@ const sessionConfig = {
 app.use(session(sessionConfig));
 
 // Import route modules
-let completenessRoutes, difficultyRoutes, subtasksRoutes, progressRoutes, importRoutes, authRoutes, userDataRoutes;
+let completenessRoutes, difficultyRoutes, subtasksRoutes, progressRoutes, importRoutes, authRoutes, userDataRoutes, goalsRoutes;
 
 try {
     completenessRoutes = require('../backend/routes/completeness');
@@ -108,6 +108,7 @@ try {
     importRoutes = require('../backend/routes/import');
     authRoutes = require('../backend/routes/auth');
     userDataRoutes = require('../backend/routes/userData');
+    goalsRoutes = require('../backend/routes/goals');
 } catch (error) {
     console.error('Error loading routes:', error);
     throw error;
@@ -121,6 +122,7 @@ app.use('/api', progressRoutes);
 app.use('/api', importRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userDataRoutes);
+app.use('/api/goals', goalsRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -28,7 +28,11 @@ const userSchema = new mongoose.Schema({
             startTime: Number,
             elapsedTime: Number,
             lastPausedAt: Number
-        }
+        },
+        isGoal: Boolean,
+        streak: Number,
+        history: Array,
+        lastCompleted: Number
     }],
     petData: {
         name: String,

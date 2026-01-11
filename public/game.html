@@ -8,6 +8,7 @@
         <link rel="stylesheet" href="game.css">
         <!-- TEMP: include legacy styles to restore appearance while splitting is finalized -->
         <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="styles-file-input.css">
 </head>
 <body>
     <!-- Top Bar (Always visible) -->
@@ -118,6 +119,10 @@
             <input type="file" id="import-file-input" accept=".ics" style="display: none;">
             <form id="task-form" class="task-form">
                 <input type="text" id="task-input" class="task-input" placeholder="Enter a task..." required>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                    <input type="checkbox" id="is-goal-checkbox" style="width: auto;">
+                    <label for="is-goal-checkbox" style="font-size: 0.9rem; color: #6b7280; cursor: pointer;">Create as Goal</label>
+                </div>
                 <button type="submit" class="add-task-btn">Add Task</button>
             </form>
             <div id="task-list" class="task-list"></div>
@@ -219,6 +224,53 @@
         </div>
     </div>
 
+    <!-- Goal Proof Modal -->
+    <div id="goal-proof-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Complete Goal</h2>
+                <button class="close-btn" id="close-goal-proof">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Upload proof that you've completed this goal:</p>
+                <div class="file-input-wrapper">
+                    <input type="file" id="goal-proof-input" accept="image/*,video/*" class="file-input-hidden">
+                    <label for="goal-proof-input" class="file-input-label">
+                        <span class="file-input-icon">📷</span>
+                        <span class="file-input-text">Choose File</span>
+                    </label>
+                    <span id="goal-proof-filename" class="file-input-filename"></span>
+                    <p class="file-input-help-text">Accepted file types: Images (JPG, PNG, GIF, WebP) and Videos (MP4, MOV, AVI, etc.)</p>
+                </div>
+                <div id="goal-proof-preview" style="margin: 1rem 0;"></div>
+                <div id="goal-proof-result" class="progress-result"></div>
+                <div class="modal-actions">
+                    <button id="submit-goal-proof" class="submit-btn">Submit Proof</button>
+                    <button id="skip-goal-proof" class="skip-btn">Skip Proof</button>
+                    <button id="cancel-goal-proof" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goal History Modal -->
+    <div id="goal-history-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Goal History</h2>
+                <button class="close-btn" id="close-goal-history">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="goal-history-content">
+                    <p style="color: #6b7280;">No completion history yet.</p>
+                </div>
+                <div class="modal-actions">
+                    <button id="close-goal-history-btn" class="cancel-btn">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="loading-overlay">
         <div class="spinner"></div>
@@ -233,6 +285,8 @@
         <script src="js/timer.js"></script>
         <script src="js/progress.js"></script>
         <script src="js/tasks.js"></script>
+        <script src="js/goals-utils.js"></script>
+        <script src="js/goals.js"></script>
         <script src="js/main.js"></script>
 </body>
 </html>

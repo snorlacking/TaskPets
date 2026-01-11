@@ -59,6 +59,7 @@ const progressRoutes = require('./backend/routes/progress');
 const importRoutes = require('./backend/routes/import');
 const authRoutes = require('./backend/routes/auth');
 const userDataRoutes = require('./backend/routes/userData');
+const goalsRoutes = require('./backend/routes/goals');
 
 // Register routes
 app.use('/api', completenessRoutes);
@@ -68,6 +69,7 @@ app.use('/api', progressRoutes);
 app.use('/api', importRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userDataRoutes);
+app.use('/api/goals', goalsRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

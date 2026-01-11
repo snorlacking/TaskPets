@@ -5,6 +5,8 @@ async function handleAddTask(e) {
     const description = input.value.trim();
     if (!description) return;
     
+    const isGoal = document.getElementById('is-goal-checkbox').checked;
+    
     showLoading();
     
     try {
@@ -19,7 +21,7 @@ async function handleAddTask(e) {
         
         if (completenessData.needsMoreInfo) {
             hideLoading();
-            currentTaskInfo = { description, taskDescription: '' };
+            currentTaskInfo = { description, taskDescription: '', isGoal };
             document.getElementById('info-message').textContent = completenessData.message || 'Could you provide more details about this task?';
             document.getElementById('additional-info').value = '';
             document.getElementById('info-modal').classList.add('active');
@@ -27,7 +29,7 @@ async function handleAddTask(e) {
         }
         
         // Proceed with difficulty rating
-        await proceedWithTask(description);
+        await proceedWithTask(description, '', isGoal);
     } catch (error) {
         console.error('Error adding task:', error);
         alert('Error adding task. Please check if the backend server is running.');
@@ -36,7 +38,7 @@ async function handleAddTask(e) {
 }
 
 // Proceed with task (after completeness check)
-async function proceedWithTask(description, taskDescription = '') {
+async function proceedWithTask(description, taskDescription = '', isGoal = false) {
     try {
         const difficultyResponse = await fetch(`${API_BASE_URL}/rate-difficulty`, {
             method: 'POST',
@@ -63,7 +65,11 @@ async function proceedWithTask(description, taskDescription = '') {
                 startTime: null,
                 elapsedTime: 0,
                 lastPausedAt: null
-            }
+            },
+            isGoal: isGoal || false,
+            streak: 0,
+            history: [],
+            lastCompleted: null
         };
         
         tasks.push(newTask);
@@ -71,10 +77,13 @@ async function proceedWithTask(description, taskDescription = '') {
         renderTasks();
         
         document.getElementById('task-input').value = '';
+        document.getElementById('is-goal-checkbox').checked = false;
         hideLoading();
         
-        // Show due date modal (optional)
-        setTimeout(() => showDueDateModal(newTask.id), 100);
+        // Show due date modal (optional) - only for regular tasks
+        if (!isGoal) {
+            setTimeout(() => showDueDateModal(newTask.id), 100);
+        }
     } catch (error) {
         console.error('Error rating difficulty:', error);
         alert('Error rating task difficulty. Please check if the backend server is running.');
@@ -291,10 +300,33 @@ function renderTasks() {
         const timerDisplay = task.timer && task.timer.isRunning ? formatTime(elapsedTime) : (task.timer && task.timer.elapsedTime > 0 ? formatTime(task.timer.elapsedTime) : '');
         
         const isMinimized = task.minimized;
-        const dueDateDisplay = task.dueDate ? `<span class="due-date-badge ${new Date(task.dueDate) < new Date() && !task.completed ? 'overdue' : ''}">📅 ${formatDate(task.dueDate)}</span>` : '';
+        const isGoal = task.isGoal || false;
+        
+        // Different displays for goals vs regular tasks
+        let dateDisplay = '';
+        if (isGoal) {
+            // Get lastCompleted from database (stored in task.lastCompleted, derived from history)
+            let lastCompleted = 'Never';
+            if (task.lastCompleted) {
+                // Use the timestamp directly from database, format it properly
+                const date = new Date(task.lastCompleted);
+                // Use local date components to avoid timezone issues
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                lastCompleted = formatDate(`${year}-${month}-${day}`);
+            }
+            dateDisplay = `<span class="due-date-badge">📅 Last Completed: ${lastCompleted}</span>`;
+            // Streak is calculated from database history
+            if (task.streak > 0) {
+                dateDisplay += ` <span class="due-date-badge" style="background: #fbbf24; color: #1f2937;">🔥 Streak: ${task.streak}</span>`;
+            }
+        } else {
+            dateDisplay = task.dueDate ? `<span class="due-date-badge ${new Date(task.dueDate) < new Date() && !task.completed ? 'overdue' : ''}">📅 ${formatDate(task.dueDate)}</span>` : '';
+        }
         
         const taskElement = document.createElement('div');
-        taskElement.className = 'task-card' + (task.completed ? ' completed' : '');
+        taskElement.className = 'task-card' + (task.completed && !isGoal ? ' completed' : '');
         taskElement.style.animationDelay = `${index * 0.1}s`;
         
         taskElement.innerHTML = `
@@ -315,10 +347,11 @@ function renderTasks() {
                     <span class="coin-icon">🪙</span>
                     ${task.difficulty * 2} coins
                 </span>
-                ${dueDateDisplay}
+                ${isGoal ? '<span class="difficulty-badge" style="background: #8b5cf6;">🎯 Goal</span>' : ''}
+                ${dateDisplay}
             </div>
             
-            ${!isMinimized ? `
+            ${!isMinimized && !isGoal ? `
             <!-- Progress Bar -->
             <div class="task-progress-section">
                 <div class="progress-bar-container">
@@ -353,19 +386,25 @@ function renderTasks() {
             ` : ''}
             
             <div class="task-actions">
-                ${task.completed ? '<span style="color: #10b981; font-weight: 600;">✓ Completed</span>' : ''}
-                ${!task.completed ? `
-                    ${task.timer && task.timer.isRunning ? `
-                        <div class="timer-display running">⏱️ ${timerDisplay}</div>
-                        <button class="timer-btn pause-btn" onclick="pauseTimer(${task.id})">Pause</button>
-                    ` : `
-                        ${timerDisplay ? `<div class="timer-display">⏱️ ${timerDisplay}</div>` : ''}
-                        <button class="timer-btn start-btn" onclick="startTimer(${task.id})">Start Timer</button>
-                    `}
-                ` : task.timer && task.timer.elapsedTime > 0 ? `
-                <div class="timer-display">⏱️ ${formatTime(task.timer.elapsedTime)}</div>
-                ` : ''}
-                <button class="task-btn delete-btn" onclick="handleDeleteTask(${task.id})">Delete</button>
+                ${isGoal ? `
+                    <button class="task-btn" style="background: #10b981;" onclick="openGoalProofModal(${task.id})">Complete Goal</button>
+                    <button class="task-btn" style="background: #667eea;" onclick="openGoalHistoryModal(${task.id})">History</button>
+                    <button class="task-btn delete-btn" onclick="handleDeleteTask(${task.id})">Delete</button>
+                ` : `
+                    ${task.completed ? '<span style="color: #10b981; font-weight: 600;">✓ Completed</span>' : ''}
+                    ${!task.completed ? `
+                        ${task.timer && task.timer.isRunning ? `
+                            <div class="timer-display running">⏱️ ${timerDisplay}</div>
+                            <button class="timer-btn pause-btn" onclick="pauseTimer(${task.id})">Pause</button>
+                        ` : `
+                            ${timerDisplay ? `<div class="timer-display">⏱️ ${timerDisplay}</div>` : ''}
+                            <button class="timer-btn start-btn" onclick="startTimer(${task.id})">Start Timer</button>
+                        `}
+                    ` : task.timer && task.timer.elapsedTime > 0 ? `
+                    <div class="timer-display">⏱️ ${formatTime(task.timer.elapsedTime)}</div>
+                    ` : ''}
+                    <button class="task-btn delete-btn" onclick="handleDeleteTask(${task.id})">Delete</button>
+                `}
             </div>
         `;
         

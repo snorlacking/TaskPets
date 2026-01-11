@@ -57,7 +57,7 @@ async function loadPetData() {
         
         if (data.petData && Object.keys(data.petData).length > 0) {
             petData = data.petData;
-        } else {
+    } else {
             petData = getDefaultPetData();
             await savePetData();
         }
@@ -70,18 +70,18 @@ async function loadPetData() {
 // Default Pet Data
 function getDefaultPetData() {
     return {
-        name: 'My Pet',
-        health: 100,
-        happiness: 100,
-        hunger: 100,
-        energy: 100,
-        growthStage: 0,
-        coins: 0,
-        inventory: [],
-        totalTasksCompleted: 0,
-        itemsUsed: 0,
-        lastStatUpdate: Date.now(),
-        maxHealth: 100,
+            name: 'My Pet',
+            health: 100,
+            happiness: 100,
+            hunger: 100,
+            energy: 100,
+            growthStage: 0,
+            coins: 0,
+            inventory: [],
+            totalTasksCompleted: 0,
+            itemsUsed: 0,
+            lastStatUpdate: Date.now(),
+            maxHealth: 100,
         maxHappiness: 100,
         activeItems: [] // Track which wearable items are currently active
     };

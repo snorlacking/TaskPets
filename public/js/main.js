@@ -145,14 +145,7 @@ function setupEventListeners() {
     document.getElementById('submit-info').addEventListener('click', async () => {
         const additionalInfo = document.getElementById('additional-info').value.trim();
         if (currentTaskInfo && currentTaskInfo.description) {
-            await proceedWithTask(currentTaskInfo.description, additionalInfo);
-            document.getElementById('info-modal').classList.remove('active');
-            currentTaskInfo = null;
-        }
-    });
-    document.getElementById('skip-info').addEventListener('click', async () => {
-        if (currentTaskInfo && currentTaskInfo.description) {
-            await proceedWithTask(currentTaskInfo.description, '');
+            await proceedWithTask(currentTaskInfo.description, additionalInfo, currentTaskInfo.isGoal || false);
             document.getElementById('info-modal').classList.remove('active');
             currentTaskInfo = null;
         }
@@ -165,6 +158,26 @@ function setupEventListeners() {
     document.getElementById('cancel-progress').addEventListener('click', cancelProgressModal);
     document.getElementById('update-progress-btn').addEventListener('click', handleUpdateProgress);
     document.getElementById('all-done-btn').addEventListener('click', handleAllDone);
+    
+    // Goal proof modal
+    document.getElementById('close-goal-proof').addEventListener('click', () => {
+        document.getElementById('goal-proof-modal').classList.remove('active');
+        currentTaskInfo = null;
+    });
+    document.getElementById('cancel-goal-proof').addEventListener('click', () => {
+        document.getElementById('goal-proof-modal').classList.remove('active');
+        currentTaskInfo = null;
+    });
+    document.getElementById('submit-goal-proof').addEventListener('click', submitGoalProof);
+    document.getElementById('skip-goal-proof').addEventListener('click', skipGoalProof);
+    
+    // Goal history modal
+    document.getElementById('close-goal-history').addEventListener('click', () => {
+        document.getElementById('goal-history-modal').classList.remove('active');
+    });
+    document.getElementById('close-goal-history-btn').addEventListener('click', () => {
+        document.getElementById('goal-history-modal').classList.remove('active');
+    });
     
     // Pet name input
     const nameInput = document.getElementById('pet-name');
