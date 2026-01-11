@@ -125,13 +125,34 @@ function setupEventListeners() {
             dueDateModal.classList.remove('active');
             currentTaskInfo = null;
         });
-        document.getElementById('skip-due-date').addEventListener('click', () => {
+        document.getElementById('skip-due-date').addEventListener('click', async () => {
+            // Handle voice-created tasks (pending tasks)
+            if (currentTaskInfo && currentTaskInfo.taskData && currentTaskInfo.pendingTask) {
+                currentTaskInfo.taskData.dueDate = null;
+                await createTaskFromVoiceWithDate(currentTaskInfo.taskData);
+                dueDateModal.classList.remove('active');
+                currentTaskInfo = null;
+                return;
+            }
+            
+            // Handle regular tasks (already created)
             dueDateModal.classList.remove('active');
             currentTaskInfo = null;
         });
-        document.getElementById('save-due-date').addEventListener('click', () => {
+        document.getElementById('save-due-date').addEventListener('click', async () => {
             const dateInput = document.getElementById('due-date-input');
             const dateValue = dateInput.value;
+            
+            // Handle voice-created tasks (pending tasks)
+            if (currentTaskInfo && currentTaskInfo.taskData && currentTaskInfo.pendingTask) {
+                currentTaskInfo.taskData.dueDate = dateValue || null;
+                await createTaskFromVoiceWithDate(currentTaskInfo.taskData);
+                dueDateModal.classList.remove('active');
+                currentTaskInfo = null;
+                return;
+            }
+            
+            // Handle regular tasks (already created)
             if (currentTaskInfo && currentTaskInfo.id) {
                 const task = tasks.find(t => t.id === currentTaskInfo.id);
                 if (task) {
