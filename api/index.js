@@ -28,6 +28,9 @@ try {
 
 const app = express();
 
+// Trust proxy - CRITICAL for Vercel (tells Express to trust X-Forwarded-* headers)
+app.set('trust proxy', 1);
+
 // Connect to MongoDB (non-blocking for serverless)
 if (process.env.MONGO_URI) {
     connectDB().catch(err => {
@@ -84,8 +87,8 @@ const sessionConfig = {
     store: sessionStore,
     cookie: {
         maxAge: 24 * 60 * 60 * 1000, // 1 day
-        sameSite: 'none', // Required for cross-origin requests (Vercel)
-        secure: true, // Required when sameSite is 'none'
+        secure: process.env.NODE_ENV === 'production', // true on Vercel, false on localhost
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for production (cross-origin safe)
         httpOnly: true, // Prevent XSS attacks
         path: '/'
     }

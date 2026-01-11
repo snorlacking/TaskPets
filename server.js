@@ -9,6 +9,9 @@ const { connectDB } = require('./backend/config/db');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy (not needed for local dev, but good practice)
+app.set('trust proxy', 1);
+
 // Connect to MongoDB
 connectDB().catch(err => {
     console.error('Failed to connect to MongoDB:', err);
