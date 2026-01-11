@@ -3,6 +3,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
+const path = require('path');
 
 // Load environment variables (Vercel provides these automatically)
 try {
@@ -38,6 +39,14 @@ app.use(session({
         secure: process.env.NODE_ENV === 'production'
     }
 }));
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Redirect root to home.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'home.html'));
+});
 
 // Import route modules
 let completenessRoutes, difficultyRoutes, subtasksRoutes, progressRoutes, importRoutes, authRoutes;

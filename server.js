@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -13,8 +14,6 @@ if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_a
     console.error('Please set your Gemini API key in the .env file.');
     process.exit(1);
 }
-
-
 
 // Middleware
 app.use(cors({
@@ -33,11 +32,13 @@ app.use(session({
         secure: false // allow cookies over http for local dev
     }
 }));
-app.use(express.static('.'));
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Redirect root to home.html
 app.get('/', (req, res) => {
-    res.redirect('/home.html');
+    res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
 
 // Import route modules
