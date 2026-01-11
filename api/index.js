@@ -11,8 +11,11 @@ const mongoose = require('mongoose');
 let MongoStore;
 try {
     MongoStore = require('connect-mongo');
+    console.log('✓ connect-mongo loaded successfully');
 } catch (e) {
     // connect-mongo not installed, will use MemoryStore
+    console.warn('⚠ connect-mongo not found, using MemoryStore (sessions won\'t persist on serverless)');
+    console.warn('⚠ Error:', e.message);
     MongoStore = null;
 }
 
@@ -52,12 +55,16 @@ let sessionStore;
 if (process.env.MONGO_URI && MongoStore) {
     // Use MongoDB session store for serverless (persists across invocations)
     // connect-mongo 5.x uses mongoUrl directly
+    console.log('✓ Using MongoDB session store (connect-mongo)');
     sessionStore = MongoStore.create({
         mongoUrl: process.env.MONGO_URI,
         collectionName: 'sessions'
     });
 } else {
     // Fallback to MemoryStore (won't work on serverless but OK for local dev)
+    console.warn('⚠ Using MemoryStore - sessions will NOT persist on serverless functions!');
+    console.warn('⚠ MONGO_URI available:', !!process.env.MONGO_URI);
+    console.warn('⚠ MongoStore available:', !!MongoStore);
     sessionStore = new MemoryStore({
         checkPeriod: 86400000 // prune expired entries every 24h
     });

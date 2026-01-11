@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('Auth response status:', authResponse.status);
         console.log('Auth response ok:', authResponse.ok);
         console.log('Auth response headers:', Object.fromEntries(authResponse.headers.entries()));
+        console.log('Set-Cookie header:', authResponse.headers.get('set-cookie'));
+        console.log('Cookies in document:', document.cookie);
         
         if (!authResponse.ok || authResponse.status === 401) {
             console.error('Auth check failed - status:', authResponse.status);

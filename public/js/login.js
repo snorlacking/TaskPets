@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Login response status:', response.status);
             console.log('Login response ok:', response.ok);
             console.log('Login response headers:', Object.fromEntries(response.headers.entries()));
+            console.log('Set-Cookie header:', response.headers.get('set-cookie'));
+            console.log('Cookies after login:', document.cookie);
             
             const data = await response.json();
             console.log('Login response data:', data);
