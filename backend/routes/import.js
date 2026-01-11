@@ -5,8 +5,9 @@ const ical = require('node-ical');
 const https = require('https');
 const http = require('http');
 
+// Use memory storage for Vercel (serverless functions don't have persistent file system)
 const upload = multer({
-    dest: 'uploads/',
+    storage: multer.memoryStorage(),
     limits: {
         fileSize: 5 * 1024 * 1024 // 5MB limit
     }
@@ -110,13 +111,6 @@ router.post('/import-tasks', upload.single('icsFile'), async (req, res) => {
                     dueDate: dueDate
                 });
             }
-        }
-        
-        // Clean up uploaded file
-        try {
-            fs.unlinkSync(file.path);
-        } catch (unlinkError) {
-            console.error('Error deleting file:', unlinkError);
         }
         
         res.json({ tasks: importedTasks });
