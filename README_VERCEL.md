@@ -43,5 +43,5 @@ This uses the original `server.js` file. The Vercel deployment uses `api/index.j
 
 - `api/index.js` - Serverless function entry point for Vercel
 - `server.js` - Original Express server for local development
-- No `vercel.json` needed - Vercel auto-detects `api/` directory
+- `vercel.json` - Configuration for static file serving and redirects
 - All other files remain the same
