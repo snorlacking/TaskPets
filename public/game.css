@@ -10,6 +10,18 @@
     position: sticky;
     top: 0;
     z-index: 101;
+    gap: 1rem;
+}
+
+.top-bar .brand-logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.top-bar .brand-logo-container .topbar-logo {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
 }
 
 .top-bar .right-controls {
