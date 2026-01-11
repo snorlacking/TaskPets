@@ -1,12 +1,12 @@
 // Global state variables
-let petData = {};
-let tasks = [];
+let petData = initPetData();
+let tasks = initTasks();
 let currentTaskInfo = null;
 
 // Initialize UI
-document.addEventListener('DOMContentLoaded', async () => {
-    await fetchUserData();
-    await fetchTasks();
+document.addEventListener('DOMContentLoaded', () => {
+    // Reload pet data on page load (in case we returned from shop page)
+    petData = initPetData();
     renderPet();
     renderTasks();
     setupEventListeners();
@@ -23,17 +23,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     let ticking = false;
     
     function handleScroll() {
-        // Keep the expanded pet box visible at all times.
-        // This makes the UI robust even if the compact header exists or is later re-enabled.
-        if (!expanded) {
-            ticking = false;
-            return;
+        if (!expanded || !compact) return;
+        
+        const expandedRect = expanded.getBoundingClientRect();
+        const topBarHeight = 70;
+        
+        if (expandedRect.bottom <= topBarHeight) {
+            if (expanded.style.display !== 'none') {
+                expanded.style.display = 'none';
+                compact.style.display = 'flex';
+            }
+        } else {
+            if (compact.style.display !== 'none') {
+                compact.style.display = 'none';
+                expanded.style.display = 'block';
+            }
         }
-
-        // Always show expanded view and hide compact view (if present)
-        expanded.style.display = 'block';
-        if (compact) compact.style.display = 'none';
-
+        
         ticking = false;
     }
     
@@ -44,38 +50,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
-
-async function fetchUserData() {
-    try {
-        const res = await fetch('/api/pet');
-        if (res.ok) {
-            const { pet } = await res.json();
-            if (pet) {
-                petData = pet;
-            } else {
-                window.location.href = '/login.html';
-            }
-        } else {
-            window.location.href = '/login.html';
-        }
-    } catch (err) {
-        console.error('Failed to fetch pet data', err);
-        window.location.href = '/login.html';
-    }
-}
-
-async function fetchTasks() {
-    try {
-        const res = await fetch('/api/tasks');
-        if (res.ok) {
-            tasks = await res.json();
-        } else {
-            console.error('Failed to fetch tasks');
-        }
-    } catch (err) {
-        console.error('Failed to fetch tasks', err);
-    }
-}
 
 // Setup Event Listeners
 function setupEventListeners() {
@@ -164,23 +138,6 @@ function setupEventListeners() {
             petData.name = e.target.value;
             if (nameInput) nameInput.value = e.target.value;
             savePetData();
-// Save pet data to backend
-async function savePetData() {
-    try {
-        const res = await fetch('/api/pet', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(petData)
-        });
-        if (!res.ok) {
-            throw new Error('Failed to save pet data');
-        }
-    } catch (err) {
-        console.error('Error saving pet data:', err);
-    }
-}
         });
     }
 }

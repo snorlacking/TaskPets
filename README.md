@@ -4,8 +4,7 @@ A gamified task management application centered around caring for your virtual p
 
 ## Features
 
-- **Task Management**: Add tasks that are automatically rated for difficulty (1-100) using Gemini AI
-- **Proof Validation**: Upload proof files to validate task completion with AI verification
+- **Task Management**: Add tasks that are automatically checked for completeness and rated for difficulty (1-100) using Gemini AI
 - **Virtual Pet**: Care for your pet with stats (Health, Happiness, Hunger, Energy)
 - **Growth System**: Watch your pet grow through multiple stages as you complete tasks
 - **Shop System**: Spend coins on food, toys, treats, decorations, and upgrades
@@ -44,11 +43,11 @@ A gamified task management application centered around caring for your virtual p
 
 ## How to Use
 
-1. **Add a Task**: Enter a task description in the input field. The AI will check if more information is needed (only flags extremely vague tasks like "do stuff").
+1. **Add a Task**: Enter a task description in the input field. Gemini AI will check if more information is needed (only flags extremely vague tasks like "do stuff").
 
-2. **Complete a Task**: Click the "Complete" button on any task, then upload a proof file. The AI will validate if your proof matches the task requirements.
+2. **Complete a Task**: Click the "Complete" button on any task. No file upload or proof is required.
 
-3. **Earn Coins**: When a task is validated, you earn coins equal to double the difficulty rating (e.g., difficulty 50 = 100 coins).
+3. **Earn Coins**: When a task is completed, you earn coins equal to double the difficulty rating (e.g., difficulty 50 = 100 coins).
 
 4. **Shop for Items**: Click the "Shop" button to buy items for your pet:
    - **Food**: Restores hunger and health
@@ -79,11 +78,11 @@ Growth is based on:
 ## Technical Details
 
 ### Frontend
+- Uses Gemini AI for task completeness and difficulty rating
+- No file upload or proof validation required
 
 ### Backend
-  - Task completeness checking
-  - Difficulty rating
-  - Proof validation
+- Provides endpoints for Gemini AI task completeness and difficulty
 
 
 ## Local auth (dev)
@@ -97,30 +96,23 @@ Endpoints:
 
 To get started after pulling these changes:
 
-1. Install new dependencies:
-
 ```powershell
 npm install
 ```
-
-2. Start the server:
 
 ```powershell
 npm start
 ```
 
-3. Open http://localhost:3000/login.html to sign in (dev flow).
+Open http://localhost:3000/login.html to sign in (dev flow).
 
 Notes: Google login will be added later. For production, replace the in-memory session store and add real user persistence + OAuth.
-### API Endpoints
-
 
 ## Notes
 
 - All data is stored in browser localStorage (client-side only)
-- The backend server must be running for task rating and validation
-- File uploads are temporarily stored and then deleted after processing
-- Maximum file size: 10MB
+- The backend server must be running for Gemini AI features
+- No file upload or proof validation is required
 
 ## Troubleshooting
 
@@ -129,7 +121,7 @@ Notes: Google login will be added later. For production, replace the in-memory s
 - Check that PORT 3000 is not already in use
 - Verify your `.env` file has the correct GEMINI_API_KEY
 
-**Tasks not being rated:**
+**Tasks not being rated or checked:**
 - Ensure the backend server is running
 - Check browser console for CORS or connection errors
 - Verify your Gemini API key is valid

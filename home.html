@@ -42,37 +42,13 @@
   </main>
 
   <script>
-    async function refreshSession() {
+    // All API/auth logic removed. Show static login/logout links only.
+    document.addEventListener('DOMContentLoaded', () => {
       const el = document.getElementById('sessionInfo');
       const nav = document.getElementById('userArea');
-      try {
-        const res = await fetch('/api/auth/me');
-        const data = await res.json();
-        if (data.user) {
-          el.textContent = `Signed in as ${data.user.name}`;
-          nav.innerHTML = `<span>${data.user.name}</span> | <a id="logoutLink" href="#">Logout</a>`;
-          document.getElementById('logoutBtn').style.display = 'inline-block';
-          document.getElementById('logoutLink').addEventListener('click', async (e) => {
-            e.preventDefault();
-            await fetch('/api/auth/logout', { method: 'POST' });
-            window.location.reload();
-          });
-        } else {
-          el.textContent = 'Not signed in';
-          nav.innerHTML = `<a href="/login.html">Login</a>`;
-        }
-      } catch (err) {
-        el.textContent = 'Error checking session';
-        console.error(err);
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      refreshSession();
-      document.getElementById('logoutBtn').addEventListener('click', async () => {
-        await fetch('/api/auth/logout', { method: 'POST' });
-        window.location.reload();
-      });
+      el.textContent = '';
+      nav.innerHTML = `<a href="/login.html">Login</a>`;
+      document.getElementById('logoutBtn').style.display = 'none';
     });
   </script>
 </body>

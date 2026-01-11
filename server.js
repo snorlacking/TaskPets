@@ -2,13 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const passport = require('passport');
-const connectDB = require('./backend/config/db');
 require('dotenv').config();
-
-// Connect to database
-connectDB();
-
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,21 +14,25 @@ if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_a
     process.exit(1);
 }
 
+
+
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({
     secret: process.env.SESSION_SECRET || 'dev_secret_change_me',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 day
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        sameSite: 'lax',
+        secure: false // allow cookies over http for local dev
+    }
 }));
-
-// Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
-
 app.use(express.static('.'));
 
 // Redirect root to home.html
@@ -45,27 +43,19 @@ app.get('/', (req, res) => {
 // Import route modules
 const completenessRoutes = require('./backend/routes/completeness');
 const difficultyRoutes = require('./backend/routes/difficulty');
-const proofRoutes = require('./backend/routes/proof');
 const subtasksRoutes = require('./backend/routes/subtasks');
 const progressRoutes = require('./backend/routes/progress');
 const importRoutes = require('./backend/routes/import');
-
 const authRoutes = require('./backend/routes/auth');
-const taskRoutes = require('./backend/routes/tasks');
-const petRoutes = require('./backend/routes/pet');
 
 // Register routes
 app.use('/api', completenessRoutes);
 app.use('/api', difficultyRoutes);
-app.use('/api', proofRoutes);
 app.use('/api', subtasksRoutes);
 app.use('/api', progressRoutes);
 app.use('/api', importRoutes);
-// Auth endpoints
+// Auth endpoints (simple local/session-based scaffolding)
 app.use('/api/auth', authRoutes);
-
-app.use('/api/tasks', taskRoutes);
-app.use('/api/pet', petRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

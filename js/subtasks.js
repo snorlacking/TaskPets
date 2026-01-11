@@ -11,31 +11,37 @@ function calculateTaskProgress(task) {
 async function generateSubtasks(taskId) {
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
-    
     showLoading();
-    
     try {
-        const response = await fetch(`${API_BASE_URL}/generate-subtasks`, {
+        const res = await fetch(`${API_BASE_URL}/generate-subtasks`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                task: task.description,
-                description: task.taskDescription || ''
-            })
+            body: JSON.stringify({ task: task.description, description: task.taskDescription || '' })
         });
-        
-        const result = await response.json();
-        task.subtasks = result.subtasks || [];
-        // Keep existing progress (don't recalculate from subtasks)
-        
+        const data = await res.json();
+        if (data.subtasks && Array.isArray(data.subtasks)) {
+            task.subtasks = data.subtasks;
+        } else {
+            // fallback if API fails
+            task.subtasks = [{
+                id: `subtask_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                text: 'Sample subtask',
+                completed: false
+            }];
+        }
         saveTasks();
         renderTasks();
-        hideLoading();
-    } catch (error) {
-        console.error('Error generating subtasks:', error);
-        alert('Error generating subtasks. Please check if the backend server is running.');
-        hideLoading();
+    } catch (err) {
+        console.error('Failed to generate subtasks:', err);
+        task.subtasks = [{
+            id: `subtask_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            text: 'Sample subtask',
+            completed: false
+        }];
+        saveTasks();
+        renderTasks();
     }
+    hideLoading();
 }
 
 // Toggle Subtask Completion

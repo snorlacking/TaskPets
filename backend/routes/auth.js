@@ -1,73 +1,47 @@
 const express = require('express');
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const User = require('../models/User');
 const router = express.Router();
 
-// Configure Passport
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/api/auth/google/callback"
-  },
-  async function(accessToken, refreshToken, profile, cb) {
-    const newUser = {
-      googleId: profile.id,
-      name: profile.displayName,
-      email: profile.emails[0].value,
-    };
 
+const fs = require('fs');
+const path = require('path');
+const USERS_FILE = path.join(__dirname, '../data/users.json');
+
+function readUsers() {
     try {
-      let user = await User.findOne({ googleId: profile.id });
-
-      if (user) {
-        cb(null, user);
-      } else {
-        user = await User.create(newUser);
-        cb(null, user);
-      }
-    } catch (err) {
-      console.error(err);
-      cb(err, null);
+        return JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
+    } catch {
+        return [];
     }
-  }
-));
+}
+function writeUsers(users) {
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+}
 
-passport.serializeUser(function(user, cb) {
-  process.nextTick(function() {
-    cb(null, { id: user.id, name: user.name, email: user.email });
-  });
+
+// Register new user (local file)
+router.post('/register', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'username and password required' });
+    let users = readUsers();
+    if (users.find(u => u.username === username)) {
+        return res.status(409).json({ error: 'Username already exists' });
+    }
+    const user = { id: Date.now(), username, password };
+    users.push(user);
+    writeUsers(users);
+    res.json({ ok: true });
 });
 
-passport.deserializeUser(function(user, cb) {
-  process.nextTick(function() {
-    return cb(null, user);
-  });
-});
 
-// Google Auth Routes
-router.get('/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/login.html' }),
-  function(req, res) {
-    // Successful authentication, redirect to the game.
-    req.session.user = req.user;
-    res.redirect('/game.html');
-  });
-
-
-// Simple session-based auth scaffold (no password / Google yet)
-// POST /api/auth/login  { username }
+// Login with username/password (local file)
 router.post('/login', (req, res) => {
-    const { username } = req.body;
-    if (!username) return res.status(400).json({ error: 'username is required' });
-
-    // Minimal user object - in a real app, look up/create user in DB
-    const user = { id: Date.now(), name: username };
-    req.session.user = user;
-    res.json({ user });
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'username and password required' });
+    const users = readUsers();
+    const user = users.find(u => u.username === username && u.password === password);
+    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+    req.session.user = { id: user.id, name: user.username };
+    res.json({ user: { id: user.id, name: user.username } });
 });
 
 // GET /api/auth/me

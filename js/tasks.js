@@ -1,127 +1,100 @@
-// Toggle Subtask
-async function toggleSubtask(taskId, subtaskId) {
-    const task = tasks.find(t => t._id === taskId);
-    if (task) {
-        const subtask = task.subtasks.find(st => st.id === subtaskId);
-        if (subtask) {
-            subtask.completed = !subtask.completed;
-            await handleUpdateTask(task._id, { subtasks: task.subtasks });
-            renderTasks();
-        }
-    }
-}
-
-// Update Subtask Text
-async function updateSubtaskText(taskId, subtaskId, text) {
-    const task = tasks.find(t => t._id === taskId);
-    if (task) {
-        const subtask = task.subtasks.find(st => st.id === subtaskId);
-        if (subtask) {
-            subtask.text = text;
-            await handleUpdateTask(task._id, { subtasks: task.subtasks });
-            renderTasks();
-        }
-    }
-}
-
-// Delete Subtask
-async function deleteSubtask(taskId, subtaskId) {
-    const task = tasks.find(t => t._id === taskId);
-    if (task) {
-        task.subtasks = task.subtasks.filter(st => st.id !== subtaskId);
-        await handleUpdateTask(task._id, { subtasks: task.subtasks });
-        renderTasks();
-    }
-}
-
-// Add Subtask
-async function addSubtask(taskId) {
-    const task = tasks.find(t => t._id === taskId);
-    if (task) {
-        const newSubtask = {
-            id: Math.random().toString(36).substr(2, 9),
-            text: '',
-            completed: false
-        };
-        task.subtasks.push(newSubtask);
-        await handleUpdateTask(task._id, { subtasks: task.subtasks });
-        renderTasks();
-    }
-}
 // Handle Add Task
 async function handleAddTask(e) {
     e.preventDefault();
     const input = document.getElementById('task-input');
     const description = input.value.trim();
-    
     if (!description) return;
     
+    showLoading();
+    
     try {
-        const res = await fetch('/api/tasks', {
+        // Check completeness first
+        const completenessResponse = await fetch(`${API_BASE_URL}/check-completeness`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ description }),
+            body: JSON.stringify({ task: description })
         });
-
-        if (res.ok) {
-            const newTask = await res.json();
-            tasks.push(newTask);
-            renderTasks();
-            input.value = '';
-        } else {
-            alert('Failed to add task');
+        
+        const completenessData = await completenessResponse.json();
+        
+        if (completenessData.needsMoreInfo) {
+            hideLoading();
+            currentTaskInfo = { description, taskDescription: '' };
+            document.getElementById('info-message').textContent = completenessData.message || 'Could you provide more details about this task?';
+            document.getElementById('additional-info').value = '';
+            document.getElementById('info-modal').classList.add('active');
+            return;
         }
-    } catch (err) {
-        console.error('Error adding task:', err);
+        
+        // Proceed with difficulty rating
+        await proceedWithTask(description);
+    } catch (error) {
+        console.error('Error adding task:', error);
         alert('Error adding task. Please check if the backend server is running.');
+        hideLoading();
+    }
+}
+
+// Proceed with task (after completeness check)
+async function proceedWithTask(description, taskDescription = '') {
+    try {
+        const difficultyResponse = await fetch(`${API_BASE_URL}/rate-difficulty`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ task: description + (taskDescription ? ' ' + taskDescription : '') })
+        });
+        
+        const difficultyData = await difficultyResponse.json();
+        const difficulty = parseInt(difficultyData.rating) || 50;
+        
+        const newTask = {
+            id: Date.now() + Math.random(),
+            description,
+            taskDescription: taskDescription || '',
+            difficulty,
+            completed: false,
+            createdAt: Date.now(),
+            progress: 0,
+            subtasks: [],
+            dueDate: null,
+            minimized: false,
+            timer: {
+                isRunning: false,
+                startTime: null,
+                elapsedTime: 0,
+                lastPausedAt: null
+            }
+        };
+        
+        tasks.push(newTask);
+        saveTasks();
+        renderTasks();
+        
+        document.getElementById('task-input').value = '';
+        hideLoading();
+        
+        // Show due date modal (optional)
+        setTimeout(() => showDueDateModal(newTask.id), 100);
+    } catch (error) {
+        console.error('Error rating difficulty:', error);
+        alert('Error rating task difficulty. Please check if the backend server is running.');
+        hideLoading();
     }
 }
 
 // Handle Delete Task
-async function handleDeleteTask(taskId) {
-    try {
-        const res = await fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
-        if (res.ok) {
-            tasks = tasks.filter(t => t._id !== taskId);
-            renderTasks();
-        } else {
-            alert('Failed to delete task');
-        }
-    } catch (err) {
-        console.error('Error deleting task:', err);
-    }
+function handleDeleteTask(taskId) {
+    tasks = tasks.filter(t => t.id !== taskId);
+    saveTasks();
+    renderTasks();
 }
-
-async function handleUpdateTask(taskId, updates) {
-    try {
-        const res = await fetch(`/api/tasks/${taskId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updates),
-        });
-
-        if (res.ok) {
-            const updatedTask = await res.json();
-            const index = tasks.findIndex(t => t._id === taskId);
-            if (index !== -1) {
-                tasks[index] = updatedTask;
-            }
-            renderTasks();
-        } else {
-            alert('Failed to update task');
-        }
-    } catch (err) {
-        console.error('Error updating task:', err);
-    }
-}
-
 
 // Toggle Task Minimize
-async function toggleTaskMinimize(taskId) {
-    const task = tasks.find(t => t._id === taskId);
+function toggleTaskMinimize(taskId) {
+    const task = tasks.find(t => t.id === taskId);
     if (task) {
         task.minimized = !task.minimized;
-        await handleUpdateTask(task._id, { minimized: task.minimized });
+        saveTasks();
         renderTasks();
     }
 }
@@ -137,7 +110,9 @@ function formatDate(dateString) {
 function showDueDateModal(taskId) {
     const modal = document.getElementById('due-date-modal');
     const dateInput = document.getElementById('due-date-input');
+    
     if (!modal || !dateInput) return;
+    
     dateInput.value = '';
     currentTaskInfo = { id: taskId };
     modal.classList.add('active');
@@ -282,11 +257,11 @@ function toggleTaskDescription(taskId) {
 }
 
 // Update Task Description
-async function updateTaskDescription(taskId, description) {
-    const task = tasks.find(t => t._id === taskId);
+function updateTaskDescription(taskId, description) {
+    const task = tasks.find(t => t.id === taskId);
     if (task) {
         task.taskDescription = description.trim();
-        await handleUpdateTask(task._id, { taskDescription: task.taskDescription });
+        saveTasks();
         renderTasks();
     }
 }
@@ -294,32 +269,37 @@ async function updateTaskDescription(taskId, description) {
 // Render Tasks
 function renderTasks() {
     const taskList = document.getElementById('task-list');
+    
     if (tasks.length === 0) {
         taskList.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No tasks yet. Add one to get started!</p>';
         return;
     }
+    
     // Sort tasks: incomplete first, then completed
     const sortedTasks = [...tasks].sort((a, b) => {
-        if (a.isCompleted === b.isCompleted) return 0;
-        return a.isCompleted ? 1 : -1;
+        if (a.completed === b.completed) return 0;
+        return a.completed ? 1 : -1;
     });
+    
     taskList.innerHTML = sortedTasks.map(task => {
         const progress = task.progress || 0;
         const elapsedTime = task.timer ? (task.timer.elapsedTime + (task.timer.isRunning ? Date.now() - task.timer.startTime : 0)) : 0;
         const timerDisplay = task.timer && task.timer.isRunning ? formatTime(elapsedTime) : (task.timer && task.timer.elapsedTime > 0 ? formatTime(task.timer.elapsedTime) : '');
+        
         const isMinimized = task.minimized;
-        const dueDateDisplay = task.dueDate ? `<span class="due-date-badge ${new Date(task.dueDate) < new Date() && !task.isCompleted ? 'overdue' : ''}">📅 ${formatDate(task.dueDate)}</span>` : '';
+        const dueDateDisplay = task.dueDate ? `<span class="due-date-badge ${new Date(task.dueDate) < new Date() && !task.completed ? 'overdue' : ''}">📅 ${formatDate(task.dueDate)}</span>` : '';
+        
         return `
-        <div class="task-card ${task.isCompleted ? 'completed' : ''}">
+        <div class="task-card ${task.completed ? 'completed' : ''}">
             <div class="task-header">
                 <div class="task-title-row">
                     <div class="task-description">${escapeHtml(task.description)}</div>
-                    <button class="minimize-btn" onclick="toggleTaskMinimize('${task._id}')" title="${isMinimized ? 'Expand' : 'Minimize'}">${isMinimized ? '▼' : '▲'}</button>
+                    <button class="minimize-btn" onclick="toggleTaskMinimize(${task.id})" title="${isMinimized ? 'Expand' : 'Minimize'}">${isMinimized ? '▼' : '▲'}</button>
                 </div>
                 ${!isMinimized ? `
                 ${task.taskDescription ? `<div class="task-description-text">${escapeHtml(task.taskDescription)}</div>` : ''}
-                <button class="edit-description-btn" onclick="toggleTaskDescription('${task._id}')" title="Edit description">${task.taskDescription ? '✏️' : '+ Add description'}</button>
-                ${task.taskDescription ? `<textarea class="task-description-edit" id="task-desc-${task._id}" style="display:none;" onblur="updateTaskDescription('${task._id}', this.value)">${escapeHtml(task.taskDescription)}</textarea>` : `<textarea class="task-description-edit" id="task-desc-${task._id}" style="display:none;" placeholder="Add description..." onblur="updateTaskDescription('${task._id}', this.value)"></textarea>`}
+                <button class="edit-description-btn" onclick="toggleTaskDescription(${task.id})" title="Edit description">${task.taskDescription ? '✏️' : '+ Add description'}</button>
+                ${task.taskDescription ? `<textarea class="task-description-edit" id="task-desc-${task.id}" style="display:none;" onblur="updateTaskDescription(${task.id}, this.value)">${escapeHtml(task.taskDescription)}</textarea>` : `<textarea class="task-description-edit" id="task-desc-${task.id}" style="display:none;" placeholder="Add description..." onblur="updateTaskDescription(${task.id}, this.value)"></textarea>`}
                 ` : ''}
             </div>
             <div class="task-meta">
@@ -330,6 +310,7 @@ function renderTasks() {
                 </span>
                 ${dueDateDisplay}
             </div>
+            
             ${!isMinimized ? `
             <!-- Progress Bar -->
             <div class="task-progress-section">
@@ -338,44 +319,51 @@ function renderTasks() {
                     <span class="progress-text">${progress}%</span>
                 </div>
             </div>
+            
             <!-- Subtasks -->
-            <div class="subtasks-section" id="subtasks-${task._id}">
+            <div class="subtasks-section" id="subtasks-${task.id}">
                 ${task.subtasks && task.subtasks.length > 0 ? `
                     <div class="subtasks-list">
                         ${task.subtasks.map((subtask, index) => `
                             <div class="subtask-item">
                                 <input type="checkbox" ${subtask.completed ? 'checked' : ''} 
-                                    onchange="toggleSubtask('${task._id}', '${subtask.id}')" 
+                                    onchange="toggleSubtask(${task.id}, '${subtask.id}')" 
                                     class="subtask-checkbox">
                                 <input type="text" value="${escapeHtml(subtask.text)}" 
                                     class="subtask-text" 
-                                    onblur="updateSubtaskText('${task._id}', '${subtask.id}', this.value)"
+                                    onblur="updateSubtaskText(${task.id}, '${subtask.id}', this.value)"
                                     onkeypress="if(event.key==='Enter') this.blur()">
-                                <button class="subtask-delete-btn" onclick="deleteSubtask('${task._id}', '${subtask.id}')" title="Delete">×</button>
+                                <button class="subtask-delete-btn" onclick="deleteSubtask(${task.id}, '${subtask.id}')" title="Delete">×</button>
                             </div>
                         `).join('')}
-                        <button class="add-subtask-btn" onclick="addSubtask('${task._id}')">+ Add Subtask</button>
+                        <button class="add-subtask-btn" onclick="addSubtask(${task.id})">+ Add Subtask</button>
                     </div>
                 ` : `
-                    <button class="generate-subtasks-btn" onclick="generateSubtasks('${task._id}')">Generate Subtasks</button>
+                    <button class="generate-subtasks-btn" onclick="generateSubtasks(${task.id})">Generate Subtasks</button>
                 `}
             </div>
+            
             ` : ''}
+            
             <div class="task-actions">
-                ${task.isCompleted ? '<span style="color: #10b981; font-weight: 600;">✓ Completed</span>' : ''}
-                ${!task.isCompleted ? `
+                ${task.completed ? '<span style="color: #10b981; font-weight: 600;">✓ Completed</span>' : ''}
+                ${!task.completed ? `
                     ${task.timer && task.timer.isRunning ? `
                         <div class="timer-display running">⏱️ ${timerDisplay}</div>
-                        <button class="timer-btn pause-btn" onclick="pauseTimer('${task._id}')">Pause</button>
+                        <button class="timer-btn pause-btn" onclick="pauseTimer(${task.id})">Pause</button>
                     ` : `
                         ${timerDisplay ? `<div class="timer-display">⏱️ ${timerDisplay}</div>` : ''}
-                        <button class="timer-btn start-btn" onclick="startTimer('${task._id}')">Start Timer</button>
+                        <button class="timer-btn start-btn" onclick="startTimer(${task.id})">Start Timer</button>
                     `}
+                ` : task.timer && task.timer.elapsedTime > 0 ? `
+                <div class="timer-display">⏱️ ${formatTime(task.timer.elapsedTime)}</div>
                 ` : ''}
-                <button class="task-btn delete-btn" onclick="handleDeleteTask('${task._id}')">Delete</button>
+                <button class="task-btn delete-btn" onclick="handleDeleteTask(${task.id})">Delete</button>
             </div>
         </div>
     `;
     }).join('');
+    
+    // Start timer updates for running timers
     startTimerUpdates();
 }

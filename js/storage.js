@@ -59,10 +59,10 @@ function initTasks() {
 
 // Save Pet Data
 function savePetData() {
-    // This will be handled by the backend
+    localStorage.setItem('petData', JSON.stringify(petData));
 }
 
 // Save Tasks
 function saveTasks() {
-    // This will be handled by the backend
+    localStorage.setItem('tasks', JSON.stringify(tasks));
 }

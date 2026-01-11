@@ -1,21 +1,8 @@
-// Format time display
-function formatTime(milliseconds) {
-    const totalSeconds = Math.floor(milliseconds / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    
-    if (hours > 0) {
-        return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
-
 // Start Timer
-async function startTimer(taskId) {
-    const task = tasks.find(t => t._id === taskId);
-    if (!task || task.isCompleted) return;
-
+function startTimer(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || task.completed) return;
+    
     if (!task.timer) {
         task.timer = {
             isRunning: false,
@@ -24,11 +11,11 @@ async function startTimer(taskId) {
             lastPausedAt: null
         };
     }
-
+    
     if (!task.timer.isRunning) {
         task.timer.isRunning = true;
         task.timer.startTime = Date.now();
-        await handleUpdateTask(task._id, { timer: task.timer });
+        saveTasks();
         renderTasks();
         showTimerModal(task);
     }
@@ -42,7 +29,7 @@ function showTimerModal(task) {
     const petVisualModal = document.getElementById('pet-visual-modal');
     
     taskDescription.textContent = task.description;
-    currentTaskInfo = task;
+    currentTaskInfo = { id: task.id };
     
     // Render pet visual in modal
     const size = 150;
@@ -84,21 +71,24 @@ function showTimerModal(task) {
 }
 
 // Pause Timer
-async function pauseTimer(taskId) {
-    const task = tasks.find(t => t._id === taskId);
+function pauseTimer(taskId) {
+    const task = tasks.find(t => t.id === taskId);
     if (!task || !task.timer || !task.timer.isRunning) return;
-
+    
     // Calculate and save elapsed time
     const now = Date.now();
     task.timer.elapsedTime += (now - task.timer.startTime);
     task.timer.isRunning = false;
     task.timer.lastPausedAt = now;
-
-    await handleUpdateTask(task._id, { timer: task.timer });
+    
+    saveTasks();
     renderTasks();
-
+    
+    // Close timer modal and open progress modal
+    document.getElementById('timer-modal').classList.remove('active');
+    
     // Open progress modal
-    currentTaskInfo = task;
+    currentTaskInfo = { id: task.id };
     openProgressModal(task);
 }
 

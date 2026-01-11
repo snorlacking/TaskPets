@@ -54,4 +54,11 @@ Respond with JSON only:
     }
 });
 
+// Alias: /assess-completeness (for frontend compatibility)
+router.post('/assess-completeness', async (req, res) => {
+    // Reuse the same logic
+    req.url = '/check-completeness';
+    router.handle(req, res);
+});
+
 module.exports = router;

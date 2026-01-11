@@ -1,5 +1,6 @@
 // Open Progress Modal
 function openProgressModal(task) {
+    currentTaskInfo = { id: task.id };
     const modal = document.getElementById('progress-modal');
     const descriptionTextarea = document.getElementById('progress-description');
     const subtasksList = document.getElementById('progress-subtasks-list');
