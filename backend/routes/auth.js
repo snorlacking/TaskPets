@@ -115,6 +115,10 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         
+        // Update lastLogin timestamp
+        user.lastLogin = new Date();
+        await user.save();
+        
         // Create session
         req.session.user = {
             id: user._id.toString(),

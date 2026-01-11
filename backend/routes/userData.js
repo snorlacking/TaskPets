@@ -18,9 +18,35 @@ router.get('/data', requireAuth, async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
         
+        // Calculate hunger/energy decay based on lastLogin
+        let petData = user.petData || {};
+        if (user.lastLogin && petData.hunger !== undefined && petData.energy !== undefined) {
+            const now = Date.now();
+            const lastLoginTime = new Date(user.lastLogin).getTime();
+            const hoursPassed = (now - lastLoginTime) / (1000 * 60 * 60);
+            
+            if (hoursPassed > 0) {
+                // Decay rate: 15 points per hour for hunger, 10 points per hour for energy
+                const decayRate = (petData.decayMultiplier || 1);
+                const hungerDecay = decayRate * 15 * hoursPassed;
+                const energyDecay = decayRate * 10 * hoursPassed;
+                
+                petData.hunger = Math.max(0, (petData.hunger || 100) - hungerDecay);
+                petData.energy = Math.max(0, (petData.energy || 100) - energyDecay);
+                
+                // Update lastStatUpdate to now
+                petData.lastStatUpdate = now;
+                
+                // Save updated petData to database
+                user.petData = petData;
+                user.lastLogin = new Date(); // Update lastLogin to now
+                await user.save();
+            }
+        }
+        
         res.json({
             tasks: user.tasks || [],
-            petData: user.petData || {}
+            petData: petData
         });
     } catch (error) {
         console.error('Error fetching user data:', error);

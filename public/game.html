@@ -118,12 +118,14 @@
             </div>
             <input type="file" id="import-file-input" accept=".ics" style="display: none;">
             <form id="task-form" class="task-form">
-                <input type="text" id="task-input" class="task-input" placeholder="Enter a task..." required>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                <div class="task-form-row">
+                    <input type="text" id="task-input" class="task-input" placeholder="Enter a task..." required>
+                    <button type="submit" class="add-task-btn">Add Task</button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <input type="checkbox" id="is-goal-checkbox" style="width: auto;">
                     <label for="is-goal-checkbox" style="font-size: 0.9rem; color: #6b7280; cursor: pointer;">Create as Goal</label>
                 </div>
-                <button type="submit" class="add-task-btn">Add Task</button>
             </form>
             <div id="task-list" class="task-list"></div>
         </section>
