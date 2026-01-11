@@ -1,4 +1,23 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Check if user is already logged in
+    try {
+        const authResponse = await fetch(`${API_BASE_URL}/auth/me`, {
+            credentials: 'include'
+        });
+        
+        if (authResponse.ok) {
+            const authData = await authResponse.json();
+            if (authData.user) {
+                // User is already logged in, redirect to game
+                window.location.href = 'game.html';
+                return;
+            }
+        }
+    } catch (error) {
+        console.error('Error checking auth status:', error);
+        // Continue to show login form if check fails
+    }
+    
     const form = document.getElementById('auth-form');
     const loginBtn = document.getElementById('login-btn');
     const registerBtn = document.getElementById('register-btn');

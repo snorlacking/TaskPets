@@ -52,11 +52,8 @@ function skipGoalProof() {
     const task = tasks.find(t => t.id === currentTaskInfo.id);
     if (!task || !task.isGoal) return;
     
-    // Confirm skip
-    if (!confirm('Are you sure you want to complete this goal without proof? This will mark it as completed without validation.')) {
-        return;
-    }
-    
+    // No confirmation needed - user already clicked "Skip Proof" button
+    // This is explicit enough action to skip validation
     completeGoal(task, true); // true = skipped
 }
 

@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (response.ok) {
                     window.location.href = 'login.html';
                 } else {
-                    alert('Failed to logout. Please try again.');
+                    showError('Failed to logout. Please try again.');
                 }
             } catch (error) {
                 console.error('Logout error:', error);

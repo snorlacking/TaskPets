@@ -67,7 +67,6 @@ function toggleSubtask(taskId, subtaskId) {
             
             // Small happiness boost
             petData.happiness = Math.min(100, petData.happiness + 5);
-            petData.totalTasksCompleted++;
             
             // Stop timer if running and add to total time spent
             if (task.timer && task.timer.isRunning) {

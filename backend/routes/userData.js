@@ -77,10 +77,14 @@ router.post('/data', requireAuth, async (req, res) => {
             user.totalCoinsGained = petData.coins;
         }
         
-        // Update totalTasksCompleted from tasks
+        // Update totalTasksCompleted from tasks (only count non-goal tasks)
         if (tasks) {
-            const completedCount = tasks.filter(t => t.completed).length;
+            const completedCount = tasks.filter(t => t.completed && !t.isGoal).length;
             user.totalTasksCompleted = completedCount;
+            // Also update petData.totalTasksCompleted to keep it in sync
+            if (user.petData) {
+                user.petData.totalTasksCompleted = completedCount;
+            }
         }
         
         await user.save();

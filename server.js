@@ -60,6 +60,7 @@ const importRoutes = require('./backend/routes/import');
 const authRoutes = require('./backend/routes/auth');
 const userDataRoutes = require('./backend/routes/userData');
 const goalsRoutes = require('./backend/routes/goals');
+const voiceRoutes = require('./backend/routes/voice');
 
 // Register routes
 app.use('/api', completenessRoutes);
@@ -70,6 +71,7 @@ app.use('/api', importRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userDataRoutes);
 app.use('/api/goals', goalsRoutes);
+app.use('/api/voice', voiceRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -32,7 +32,7 @@ async function handleAddTask(e) {
         await proceedWithTask(description, '', isGoal);
     } catch (error) {
         console.error('Error adding task:', error);
-        alert('Error adding task. Please check if the backend server is running.');
+        showError('Error adding task. Please check if the backend server is running.');
         hideLoading();
     }
 }
@@ -86,7 +86,7 @@ async function proceedWithTask(description, taskDescription = '', isGoal = false
         }
     } catch (error) {
         console.error('Error rating difficulty:', error);
-        alert('Error rating task difficulty. Please check if the backend server is running.');
+        showError('Error rating task difficulty. Please check if the backend server is running.');
         hideLoading();
     }
 }
@@ -152,7 +152,7 @@ async function handleImportFromURL() {
     const url = urlInput.value.trim();
     
     if (!url) {
-        alert('Please enter a calendar URL');
+        showWarning('Please enter a calendar URL');
         return;
     }
     
@@ -170,7 +170,7 @@ async function handleImportFromURL() {
         if (result.tasks && result.tasks.length > 0) {
             await processImportedTasks(result.tasks);
         } else {
-            alert('No tasks found in the calendar.');
+            showWarning('No tasks found in the calendar.');
         }
         
         hideLoading();
@@ -178,7 +178,7 @@ async function handleImportFromURL() {
         urlInput.value = '';
     } catch (error) {
         console.error('Error importing from URL:', error);
-        alert('Error importing calendar. Please check if the backend server is running.');
+        showError('Error importing calendar. Please check if the backend server is running.');
         hideLoading();
     }
 }
@@ -201,14 +201,14 @@ async function processImportFile(file) {
         if (result.tasks && result.tasks.length > 0) {
             await processImportedTasks(result.tasks);
         } else {
-            alert('No tasks found in the .ics file.');
+            showWarning('No tasks found in the .ics file.');
         }
         
         hideLoading();
         document.getElementById('import-modal').classList.remove('active');
     } catch (error) {
         console.error('Error importing tasks:', error);
-        alert('Error importing tasks. Please check if the backend server is running.');
+        showError('Error importing tasks. Please check if the backend server is running.');
         hideLoading();
     }
 }
@@ -251,7 +251,7 @@ async function processImportedTasks(importedTasks) {
     
     saveTasks();
     renderTasks();
-    alert(`Successfully imported ${importedTasks.length} task(s)!`);
+    showSuccess(`Successfully imported ${importedTasks.length} task(s)!`);
 }
 
 // Toggle Task Description Editor

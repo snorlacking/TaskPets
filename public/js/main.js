@@ -53,6 +53,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderPet();
     renderTasks();
     setupEventListeners();
+    
+    // Initialize voice recording
+    if (typeof initVoiceRecording === 'function') {
+        initVoiceRecording();
+    } else {
+        console.warn('initVoiceRecording function not found');
+    }
+    
     updateStatDecay();
     setInterval(updateStatDecay, 60000); // Update every minute
     
@@ -150,6 +158,13 @@ function setupEventListeners() {
             currentTaskInfo = null;
         }
     });
+    document.getElementById('skip-info').addEventListener('click', async () => {
+        if (currentTaskInfo && currentTaskInfo.description) {
+            await proceedWithTask(currentTaskInfo.description, '', currentTaskInfo.isGoal || false);
+            document.getElementById('info-modal').classList.remove('active');
+            currentTaskInfo = null;
+        }
+    });
     
     // Progress modal
     document.getElementById('close-progress').addEventListener('click', () => {
@@ -177,6 +192,28 @@ function setupEventListeners() {
     });
     document.getElementById('close-goal-history-btn').addEventListener('click', () => {
         document.getElementById('goal-history-modal').classList.remove('active');
+    });
+    
+    // Goal confirmation modal
+    document.getElementById('close-goal-confirmation').addEventListener('click', () => {
+        document.getElementById('goal-confirmation-modal').classList.remove('active');
+        currentTaskInfo = null;
+    });
+    document.getElementById('confirm-goal-yes').addEventListener('click', async () => {
+        if (currentTaskInfo && currentTaskInfo.taskData) {
+            currentTaskInfo.taskData.isGoal = true;
+            await createTaskFromVoiceWithDate(currentTaskInfo.taskData);
+            document.getElementById('goal-confirmation-modal').classList.remove('active');
+            currentTaskInfo = null;
+        }
+    });
+    document.getElementById('confirm-goal-no').addEventListener('click', async () => {
+        if (currentTaskInfo && currentTaskInfo.taskData) {
+            currentTaskInfo.taskData.isGoal = false;
+            await createTaskFromVoiceWithDate(currentTaskInfo.taskData);
+            document.getElementById('goal-confirmation-modal').classList.remove('active');
+            currentTaskInfo = null;
+        }
     });
     
     // Pet name input

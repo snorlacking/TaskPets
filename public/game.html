@@ -120,6 +120,9 @@
             <form id="task-form" class="task-form">
                 <div class="task-form-row">
                     <input type="text" id="task-input" class="task-input" placeholder="Enter a task..." required>
+                    <button type="button" id="voice-record-btn" class="voice-btn" title="Record voice input">
+                        <span id="voice-btn-icon">🎤</span>
+                    </button>
                     <button type="submit" class="add-task-btn">Add Task</button>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -197,6 +200,23 @@
                 <div class="modal-actions">
                     <button id="save-due-date" class="submit-btn">Save</button>
                     <button id="skip-due-date" class="cancel-btn">Skip</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goal Confirmation Modal -->
+    <div id="goal-confirmation-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Task Type</h2>
+                <button class="close-btn" id="close-goal-confirmation">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="goal-confirmation-message">Is this a goal (recurring task) or a regular task?</p>
+                <div class="modal-actions">
+                    <button id="confirm-goal-yes" class="submit-btn">Goal</button>
+                    <button id="confirm-goal-no" class="cancel-btn">Regular Task</button>
                 </div>
             </div>
         </div>
@@ -282,6 +302,7 @@
         <script src="js/config.js"></script>
         <script src="js/storage.js"></script>
         <script src="js/utils.js"></script>
+        <script src="js/notifications.js"></script>
         <script src="js/pet.js"></script>
         <script src="js/subtasks.js"></script>
         <script src="js/timer.js"></script>
@@ -289,6 +310,7 @@
         <script src="js/tasks.js"></script>
         <script src="js/goals-utils.js"></script>
         <script src="js/goals.js"></script>
+        <script src="js/voice.js"></script>
         <script src="js/main.js"></script>
 </body>
 </html>
