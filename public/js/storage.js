@@ -46,7 +46,8 @@ function getDefaultPetData() {
         lastStatUpdate: Date.now(),
         maxHealth: 100,
         maxHappiness: 100,
-        activeItems: [] // Track which wearable items are currently active
+        activeItems: [], // Track which wearable items are currently active
+        totalTimeSpent: 0 // Total time spent on all tasks (in milliseconds)
     };
 }
 

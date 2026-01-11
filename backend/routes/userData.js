@@ -73,7 +73,7 @@ router.post('/data', requireAuth, async (req, res) => {
 // GET /api/user/profile - Fetch user profile stats
 router.get('/profile', requireAuth, async (req, res) => {
     try {
-        const user = await User.findById(req.session.user.id).select('username totalCoinsGained totalTasksCompleted');
+        const user = await User.findById(req.session.user.id).select('username totalCoinsGained totalTasksCompleted petData');
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -81,7 +81,8 @@ router.get('/profile', requireAuth, async (req, res) => {
         res.json({
             username: user.username,
             totalCoinsGained: user.totalCoinsGained || 0,
-            totalTasksCompleted: user.totalTasksCompleted || 0
+            totalTasksCompleted: user.totalTasksCompleted || 0,
+            petData: user.petData || {}
         });
     } catch (error) {
         console.error('Error fetching user profile:', error);

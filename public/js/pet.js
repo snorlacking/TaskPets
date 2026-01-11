@@ -62,17 +62,24 @@ function renderPetVisualCompact() {
     
     let accessories = '';
     
-    // Hat (on head)
+    // Hat (on head) - Top hat style
     if (hasHat) {
-        accessories += `<rect x="60" y="20" width="80" height="25" rx="5" fill="#1f2937" opacity="0.9"/>`;
-        accessories += `<rect x="65" y="25" width="70" height="15" rx="3" fill="#374151"/>`;
+        // Brim (wider bottom)
+        accessories += `<ellipse cx="100" cy="18" rx="50" ry="4" fill="#1f2937"/>`;
+        // Cylinder body
+        accessories += `<rect x="70" y="18" width="60" height="20" fill="#1f2937"/>`;
+        // Top
+        accessories += `<ellipse cx="100" cy="18" rx="30" ry="3" fill="#2d3748"/>`;
     }
     
-    // Bow tie (on body)
+    // Bow tie (on body) - Better bow shape
     if (hasBowTie) {
-        accessories += `<circle cx="95" cy="105" r="8" fill="#ef4444"/>`;
-        accessories += `<circle cx="105" cy="105" r="8" fill="#ef4444"/>`;
-        accessories += `<polygon points="100,105 95,115 105,115" fill="#ef4444"/>`;
+        // Left loop
+        accessories += `<ellipse cx="88" cy="105" rx="10" ry="6" fill="#ef4444"/>`;
+        // Right loop
+        accessories += `<ellipse cx="112" cy="105" rx="10" ry="6" fill="#ef4444"/>`;
+        // Center knot
+        accessories += `<rect x="97" y="102" width="6" height="6" fill="#dc2626" rx="1"/>`;
     }
     
     // Tie (on body)
@@ -114,17 +121,24 @@ function renderPetVisual() {
     
     let accessories = '';
     
-    // Hat (on head)
+    // Hat (on head) - Top hat style
     if (hasHat) {
-        accessories += `<rect x="60" y="20" width="80" height="25" rx="5" fill="#1f2937" opacity="0.9"/>`;
-        accessories += `<rect x="65" y="25" width="70" height="15" rx="3" fill="#374151"/>`;
+        // Brim (wider bottom)
+        accessories += `<ellipse cx="100" cy="18" rx="50" ry="4" fill="#1f2937"/>`;
+        // Cylinder body
+        accessories += `<rect x="70" y="18" width="60" height="20" fill="#1f2937"/>`;
+        // Top
+        accessories += `<ellipse cx="100" cy="18" rx="30" ry="3" fill="#2d3748"/>`;
     }
     
-    // Bow tie (on body)
+    // Bow tie (on body) - Better bow shape
     if (hasBowTie) {
-        accessories += `<circle cx="95" cy="105" r="8" fill="#ef4444"/>`;
-        accessories += `<circle cx="105" cy="105" r="8" fill="#ef4444"/>`;
-        accessories += `<polygon points="100,105 95,115 105,115" fill="#ef4444"/>`;
+        // Left loop
+        accessories += `<ellipse cx="88" cy="105" rx="10" ry="6" fill="#ef4444"/>`;
+        // Right loop
+        accessories += `<ellipse cx="112" cy="105" rx="10" ry="6" fill="#ef4444"/>`;
+        // Center knot
+        accessories += `<rect x="97" y="102" width="6" height="6" fill="#dc2626" rx="1"/>`;
     }
     
     // Tie (on body)

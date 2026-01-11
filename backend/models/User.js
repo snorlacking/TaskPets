@@ -44,7 +44,8 @@ const userSchema = new mongoose.Schema({
         lastStatUpdate: Number,
         maxHealth: Number,
         maxHappiness: Number,
-        activeItems: Array
+        activeItems: Array,
+        totalTimeSpent: Number
     },
     totalCoinsGained: {
         type: Number,

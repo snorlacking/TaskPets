@@ -128,11 +128,16 @@ function handleAllDone() {
     petData.happiness = Math.min(100, petData.happiness + 5);
     petData.totalTasksCompleted++;
     
-    // Stop timer if running
+    // Stop timer if running and add to total time spent
     if (task.timer && task.timer.isRunning) {
         const now = Date.now();
-        task.timer.elapsedTime += (now - task.timer.startTime);
+        const timeSpent = now - task.timer.startTime;
+        task.timer.elapsedTime += timeSpent;
         task.timer.isRunning = false;
+        petData.totalTimeSpent = (petData.totalTimeSpent || 0) + timeSpent;
+    } else if (task.timer && task.timer.elapsedTime > 0) {
+        // Add elapsed time even if timer wasn't running
+        petData.totalTimeSpent = (petData.totalTimeSpent || 0) + task.timer.elapsedTime;
     }
     
     calculateGrowth();

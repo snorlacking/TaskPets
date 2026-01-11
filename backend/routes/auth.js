@@ -18,7 +18,8 @@ function getDefaultPetData() {
         lastStatUpdate: Date.now(),
         maxHealth: 100,
         maxHappiness: 100,
-        activeItems: []
+        activeItems: [],
+        totalTimeSpent: 0
     };
 }
 
