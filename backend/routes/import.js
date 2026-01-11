@@ -82,8 +82,8 @@ router.post('/import-tasks', upload.single('icsFile'), async (req, res) => {
             return res.status(400).json({ error: 'ICS file is required' });
         }
         
-        const fs = require('fs');
-        const icsContent = fs.readFileSync(file.path, 'utf-8');
+        // For memory storage, file.buffer contains the file data
+        const icsContent = file.buffer.toString('utf-8');
         
         // Parse ICS file
         const events = ical.parseICS(icsContent);

@@ -41,17 +41,23 @@ const progressRoutes = require('../backend/routes/progress');
 const importRoutes = require('../backend/routes/import');
 const authRoutes = require('../backend/routes/auth');
 
-// Register routes (without /api prefix since Vercel already routes /api/* to this function)
-app.use('/', completenessRoutes);
-app.use('/', difficultyRoutes);
-app.use('/', subtasksRoutes);
-app.use('/', progressRoutes);
-app.use('/', importRoutes);
-app.use('/auth', authRoutes);
+// Register routes with /api prefix (Vercel routes /api/* to this function, but Express still sees the full path)
+app.use('/api', completenessRoutes);
+app.use('/api', difficultyRoutes);
+app.use('/api', subtasksRoutes);
+app.use('/api', progressRoutes);
+app.use('/api', importRoutes);
+app.use('/api/auth', authRoutes);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Error:', err);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
 });
 
 // Export the Express app as a serverless function
