@@ -3,11 +3,17 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
-require('dotenv').config();
+
+// Load environment variables (Vercel provides these automatically)
+try {
+    require('dotenv').config();
+} catch (e) {
+    // dotenv is optional in production
+}
 
 const app = express();
 
-// Check for API key (warn but don't exit in serverless - allow Vercel to show error)
+// Check for API key (warn but don't exit in serverless)
 if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
     console.warn('WARNING: GEMINI_API_KEY is not set! API calls will fail.');
 }
@@ -34,27 +40,34 @@ app.use(session({
 }));
 
 // Import route modules
-const completenessRoutes = require('../backend/routes/completeness');
-const difficultyRoutes = require('../backend/routes/difficulty');
-const subtasksRoutes = require('../backend/routes/subtasks');
-const progressRoutes = require('../backend/routes/progress');
-const importRoutes = require('../backend/routes/import');
-const authRoutes = require('../backend/routes/auth');
+let completenessRoutes, difficultyRoutes, subtasksRoutes, progressRoutes, importRoutes, authRoutes;
 
-// Register routes with /api prefix (Vercel routes /api/* to this function, but Express still sees the full path)
-app.use('/api', completenessRoutes);
-app.use('/api', difficultyRoutes);
-app.use('/api', subtasksRoutes);
-app.use('/api', progressRoutes);
-app.use('/api', importRoutes);
-app.use('/api/auth', authRoutes);
+try {
+    completenessRoutes = require('../backend/routes/completeness');
+    difficultyRoutes = require('../backend/routes/difficulty');
+    subtasksRoutes = require('../backend/routes/subtasks');
+    progressRoutes = require('../backend/routes/progress');
+    importRoutes = require('../backend/routes/import');
+    authRoutes = require('../backend/routes/auth');
+} catch (error) {
+    console.error('Error loading routes:', error);
+    throw error;
+}
+
+// Register routes at root level (Vercel strips /api prefix when routing to api/ functions)
+app.use('/', completenessRoutes);
+app.use('/', difficultyRoutes);
+app.use('/', subtasksRoutes);
+app.use('/', progressRoutes);
+app.use('/', importRoutes);
+app.use('/auth', authRoutes);
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-// Error handling middleware
+// Error handling middleware (must be last)
 app.use((err, req, res, next) => {
     console.error('Error:', err);
     res.status(500).json({ error: 'Internal server error', details: err.message });

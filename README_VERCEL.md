@@ -28,7 +28,7 @@ This project has been configured to work with Vercel's serverless platform.
 - **Sessions**: Sessions use memory storage, so they won't persist across serverless function invocations. For production, consider using a database or external session store.
 - **Static Files**: All static files (HTML, CSS, JS) are served automatically by Vercel
 - **API Routes**: All API routes are handled by the serverless function in `api/index.js`
-- **Route Configuration**: Routes in the serverless function don't include the `/api` prefix since Vercel routes `/api/*` to the function automatically
+- **Route Configuration**: Vercel automatically routes `/api/*` requests to functions in the `api/` directory and strips the `/api` prefix, so routes are mounted at `/` level in the Express app
 
 ## Local Development
 
@@ -43,5 +43,5 @@ This uses the original `server.js` file. The Vercel deployment uses `api/index.j
 
 - `api/index.js` - Serverless function entry point for Vercel
 - `server.js` - Original Express server for local development
-- `vercel.json` - Vercel configuration
+- No `vercel.json` needed - Vercel auto-detects `api/` directory
 - All other files remain the same
