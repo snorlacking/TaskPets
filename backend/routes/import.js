@@ -4,6 +4,7 @@ const multer = require('multer');
 const ical = require('node-ical');
 const https = require('https');
 const http = require('http');
+const { genAI, getWorkingModel } = require('../config/gemini');
 
 // Use memory storage for Vercel (serverless functions don't have persistent file system)
 const upload = multer({
@@ -61,12 +62,49 @@ router.post('/import-tasks-url', async (req, res) => {
                 importedTasks.push({
                     title: title.trim(),
                     description: description.trim(),
-                    dueDate: dueDate
+                    dueDate: dueDate,
+                    rawDescription: description.trim() // Keep original for AI processing
                 });
             }
         }
         
-        res.json({ tasks: importedTasks });
+        // Process descriptions with AI
+        const processedTasks = await Promise.all(importedTasks.map(async (task) => {
+            if (!task.rawDescription || task.rawDescription.trim().length === 0) {
+                return { title: task.title, description: '', dueDate: task.dueDate };
+            }
+            
+            try {
+                const modelName = await getWorkingModel();
+                const model = genAI.getGenerativeModel({ model: modelName });
+                
+                const prompt = `Summarize and clean up this task description. Remove calendar-specific formatting, HTML entities, and unnecessary details. If there are URLs or links, keep them as clickable links. Make it concise and readable.
+
+Original description:
+${task.rawDescription}
+
+Return only the cleaned, summarized description. If there are URLs, format them as markdown links [text](url). Keep it brief and clear.`;
+                
+                const result = await model.generateContent(prompt);
+                const cleanedDescription = result.response.text().trim();
+                
+                return {
+                    title: task.title,
+                    description: cleanedDescription,
+                    dueDate: task.dueDate
+                };
+            } catch (aiError) {
+                console.error('AI processing error for task:', task.title, aiError);
+                // Fallback to original description if AI fails
+                return {
+                    title: task.title,
+                    description: task.rawDescription,
+                    dueDate: task.dueDate
+                };
+            }
+        }));
+        
+        res.json({ tasks: processedTasks });
     } catch (error) {
         console.error('Error importing from URL:', error);
         res.status(500).json({ error: 'Failed to import from URL', details: error.message });
@@ -108,12 +146,49 @@ router.post('/import-tasks', upload.single('icsFile'), async (req, res) => {
                 importedTasks.push({
                     title: title.trim(),
                     description: description.trim(),
-                    dueDate: dueDate
+                    dueDate: dueDate,
+                    rawDescription: description.trim() // Keep original for AI processing
                 });
             }
         }
         
-        res.json({ tasks: importedTasks });
+        // Process descriptions with AI
+        const processedTasks = await Promise.all(importedTasks.map(async (task) => {
+            if (!task.rawDescription || task.rawDescription.trim().length === 0) {
+                return { title: task.title, description: '', dueDate: task.dueDate };
+            }
+            
+            try {
+                const modelName = await getWorkingModel();
+                const model = genAI.getGenerativeModel({ model: modelName });
+                
+                const prompt = `Summarize and clean up this task description. Remove calendar-specific formatting, HTML entities, and unnecessary details. If there are URLs or links, keep them as clickable links. Make it concise and readable.
+
+Original description:
+${task.rawDescription}
+
+Return only the cleaned, summarized description. If there are URLs, format them as markdown links [text](url). Keep it brief and clear.`;
+                
+                const result = await model.generateContent(prompt);
+                const cleanedDescription = result.response.text().trim();
+                
+                return {
+                    title: task.title,
+                    description: cleanedDescription,
+                    dueDate: task.dueDate
+                };
+            } catch (aiError) {
+                console.error('AI processing error for task:', task.title, aiError);
+                // Fallback to original description if AI fails
+                return {
+                    title: task.title,
+                    description: task.rawDescription,
+                    dueDate: task.dueDate
+                };
+            }
+        }));
+        
+        res.json({ tasks: processedTasks });
     } catch (error) {
         console.error('Error importing tasks:', error);
         console.error('Error details:', error.message, error.stack);

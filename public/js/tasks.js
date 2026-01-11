@@ -281,7 +281,11 @@ function renderTasks() {
         return a.completed ? 1 : -1;
     });
     
-    taskList.innerHTML = sortedTasks.map(task => {
+    // Clear and prepare for animations
+    taskList.innerHTML = '';
+    
+    // Render tasks with staggered animations
+    sortedTasks.forEach((task, index) => {
         const progress = task.progress || 0;
         const elapsedTime = task.timer ? (task.timer.elapsedTime + (task.timer.isRunning ? Date.now() - task.timer.startTime : 0)) : 0;
         const timerDisplay = task.timer && task.timer.isRunning ? formatTime(elapsedTime) : (task.timer && task.timer.elapsedTime > 0 ? formatTime(task.timer.elapsedTime) : '');
@@ -289,8 +293,11 @@ function renderTasks() {
         const isMinimized = task.minimized;
         const dueDateDisplay = task.dueDate ? `<span class="due-date-badge ${new Date(task.dueDate) < new Date() && !task.completed ? 'overdue' : ''}">📅 ${formatDate(task.dueDate)}</span>` : '';
         
-        return `
-        <div class="task-card ${task.completed ? 'completed' : ''}">
+        const taskElement = document.createElement('div');
+        taskElement.className = 'task-card' + (task.completed ? ' completed' : '');
+        taskElement.style.animationDelay = `${index * 0.1}s`;
+        
+        taskElement.innerHTML = `
             <div class="task-header">
                 <div class="task-title-row">
                     <div class="task-description">${escapeHtml(task.description)}</div>
@@ -360,9 +367,10 @@ function renderTasks() {
                 ` : ''}
                 <button class="task-btn delete-btn" onclick="handleDeleteTask(${task.id})">Delete</button>
             </div>
-        </div>
-    `;
-    }).join('');
+        `;
+        
+        taskList.appendChild(taskElement);
+    });
     
     // Start timer updates for running timers
     startTimerUpdates();

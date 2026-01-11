@@ -150,6 +150,13 @@ function setupEventListeners() {
             currentTaskInfo = null;
         }
     });
+    document.getElementById('skip-info').addEventListener('click', async () => {
+        if (currentTaskInfo && currentTaskInfo.description) {
+            await proceedWithTask(currentTaskInfo.description, '');
+            document.getElementById('info-modal').classList.remove('active');
+            currentTaskInfo = null;
+        }
+    });
     
     // Progress modal
     document.getElementById('close-progress').addEventListener('click', () => {

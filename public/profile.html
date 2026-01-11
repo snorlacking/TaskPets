@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
+    <title>Profile — TaskPets</title>
     <link rel="stylesheet" href="shared.css" />
     <style>
         .profile-container {
@@ -76,6 +76,24 @@
             background: #5568d3;
         }
         
+        .btn-logout {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #ef4444;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.2s;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+        
+        .btn-logout:hover {
+            background: #dc2626;
+        }
+        
         .profile-error {
             background: #fee2e2;
             color: #991b1b;
@@ -121,6 +139,7 @@
             
             <div class="profile-actions">
                 <a href="game.html" class="btn-back">Back to Game</a>
+                <button id="logout-btn" class="btn-logout">Logout</button>
             </div>
         </div>
     </div>

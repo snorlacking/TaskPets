@@ -66,16 +66,87 @@
 .stat-bar-fill.energy{ background:linear-gradient(90deg,#3b82f6,#60a5fa) }
 .stat-value { position:absolute; right:0.5rem; color:#1f2937; font-weight:600; font-size:0.9rem; z-index:1 }
 
-/* Task section and modals */
-.task-section { background: rgba(255,255,255,0.95); border-radius:20px; padding:2rem; box-shadow:0 10px 30px rgba(0,0,0,0.2) }
-.task-section h2 { color:#1f2937 }
-.task-form { display:flex; gap:1rem; margin-bottom:2rem }
-.task-input { flex:1; padding:0.75rem; border:2px solid #e5e7eb; border-radius:8px }
+/* Task section and modals - Extended with transitions */
+.task-section { 
+    background: rgba(255,255,255,0.95); 
+    border-radius:24px; 
+    padding:3rem; 
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    animation: slideIn 0.8s ease-out;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.task-section:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.task-section h2 { 
+    color:#1f2937;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    animation: fadeIn 0.6s ease-out 0.2s both;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.task-form { 
+    display:flex; 
+    gap:1rem; 
+    margin-bottom:2.5rem;
+    animation: fadeIn 0.6s ease-out 0.4s both;
+}
+
+.task-input { 
+    flex:1; 
+    padding:1rem; 
+    border:2px solid #e5e7eb; 
+    border-radius:12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.task-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
 
 .modal { display:none }
 .modal.active { display:block }
 
-/* Main container for game page */
-.main-container { max-width:1200px; margin:2rem auto; padding:0 2rem }
+/* Main container for game page - Extended layout */
+.main-container { 
+    max-width:1400px; 
+    margin:3rem auto; 
+    padding:0 3rem;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 @media (max-width:968px) { .header{ flex-direction:column; align-items:flex-start; gap:1rem } .pet-bar{ width:100%; flex-wrap:wrap } .pet-stats-compact{ flex-wrap:wrap } }

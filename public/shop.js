@@ -13,7 +13,9 @@ const SHOP_ITEMS = [
     { id: 'cake', name: 'Cake', category: 'treats', icon: '🎂', price: 70, description: 'A delicious cake', effects: { health: 30, happiness: 30, hunger: 30, energy: 30 } },
     { id: 'golden-treat', name: 'Golden Treat', category: 'treats', icon: '✨', price: 150, description: 'The ultimate treat', effects: { health: 50, happiness: 50, hunger: 50, energy: 50 } },
     // Decorations
-    { id: 'hat', name: 'Hat', category: 'decorations', icon: '🎩', price: 40, description: 'A stylish hat', effects: {} },
+    { id: 'hat', name: 'Lucky Hat', category: 'decorations', icon: '🎩', price: 40, description: 'A stylish hat that brings good fortune', effects: { happiness: 10 }, wearable: true },
+    { id: 'bow-tie', name: 'Elegant Bow Tie', category: 'decorations', icon: '🎀', price: 35, description: 'A dapper accessory', effects: { happiness: 15 }, wearable: true },
+    { id: 'tie', name: 'Professional Tie', category: 'decorations', icon: '👔', price: 45, description: 'Look sharp and professional', effects: { happiness: 12, energy: 5 }, wearable: true },
     { id: 'accessory', name: 'Accessory', category: 'decorations', icon: '💍', price: 60, description: 'A fancy accessory', effects: {} },
     { id: 'background', name: 'Background Theme', category: 'decorations', icon: '🖼️', price: 100, description: 'Change the background', effects: {} },
     // Upgrades
@@ -27,42 +29,85 @@ let petData = null;
 let currentCategory = 'all';
 
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    loadPetData();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadPetData();
     updateCoinDisplay();
     renderShopItems('all');
     renderInventory();
     setupEventListeners();
 });
 
-// Load Pet Data
-function loadPetData() {
-    const saved = localStorage.getItem('petData');
-    if (saved) {
-        petData = JSON.parse(saved);
-    } else {
-        petData = {
-            name: 'My Pet',
-            health: 100,
-            happiness: 100,
-            hunger: 100,
-            energy: 100,
-            growthStage: 0,
-            coins: 0,
-            inventory: [],
-            totalTasksCompleted: 0,
-            itemsUsed: 0,
-            lastStatUpdate: Date.now(),
-            maxHealth: 100,
-            maxHappiness: 100
-        };
-        savePetData();
+// Load Pet Data from API
+async function loadPetData() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/user/data`, {
+            credentials: 'include'
+        });
+        
+        if (response.status === 401) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch pet data');
+        }
+        
+        const data = await response.json();
+        
+        if (data.petData && Object.keys(data.petData).length > 0) {
+            petData = data.petData;
+        } else {
+            petData = getDefaultPetData();
+            await savePetData();
+        }
+    } catch (error) {
+        console.error('Error loading pet data:', error);
+        petData = getDefaultPetData();
     }
 }
 
-// Save Pet Data
-function savePetData() {
-    localStorage.setItem('petData', JSON.stringify(petData));
+// Default Pet Data
+function getDefaultPetData() {
+    return {
+        name: 'My Pet',
+        health: 100,
+        happiness: 100,
+        hunger: 100,
+        energy: 100,
+        growthStage: 0,
+        coins: 0,
+        inventory: [],
+        totalTasksCompleted: 0,
+        itemsUsed: 0,
+        lastStatUpdate: Date.now(),
+        maxHealth: 100,
+        maxHappiness: 100,
+        activeItems: [] // Track which wearable items are currently active
+    };
+}
+
+// Save Pet Data to API
+async function savePetData() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/user/data`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ petData })
+        });
+        
+        if (response.status === 401) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        if (!response.ok) {
+            throw new Error('Failed to save pet data');
+        }
+    } catch (error) {
+        console.error('Error saving pet data:', error);
+    }
 }
 
 // Update Coin Display
@@ -126,7 +171,7 @@ function renderShopItems(category = 'all') {
 }
 
 // Buy Item
-function buyItem(itemId) {
+async function buyItem(itemId) {
     const item = SHOP_ITEMS.find(i => i.id === itemId);
     if (!item || petData.coins < item.price) {
         showPurchaseFeedback('Not enough coins!', 'error');
@@ -164,7 +209,7 @@ function buyItem(itemId) {
         petData.itemsUsed++;
     }
     
-    savePetData();
+    await savePetData();
     updateCoinDisplay();
     renderShopItems(currentCategory);
     renderInventory();
@@ -173,7 +218,7 @@ function buyItem(itemId) {
 }
 
 // Use Item from Inventory
-function useItem(itemId) {
+async function useItem(itemId) {
     const item = SHOP_ITEMS.find(i => i.id === itemId);
     if (!item) return;
     
@@ -192,7 +237,7 @@ function useItem(itemId) {
         // Remove from inventory if consumable
         petData.inventory = petData.inventory.filter(id => id !== itemId);
         petData.itemsUsed++;
-        savePetData();
+        await savePetData();
         renderInventory();
         showPurchaseFeedback(`Used ${item.name}!`, 'success');
     }
@@ -211,23 +256,39 @@ function renderInventory() {
     
     emptyMessage.style.display = 'none';
     
+    // Ensure activeItems exists
+    if (!petData.activeItems) {
+        petData.activeItems = [];
+    }
+    
     const inventoryItems = petData.inventory.map(itemId => {
         const item = SHOP_ITEMS.find(i => i.id === itemId);
         if (!item) return '';
         
         const isConsumable = ['food', 'toys', 'treats'].includes(item.category);
+        const isWearable = item.wearable === true;
+        const isActive = petData.activeItems && petData.activeItems.includes(itemId);
         const effects = item.effects ? Object.entries(item.effects)
             .filter(([key]) => !key.startsWith('permanent') && key !== 'decayMultiplier')
             .map(([key, value]) => `${key}: +${value}`)
             .join(', ') : '';
         
+        let actionButton = '';
+        if (isConsumable) {
+            actionButton = `<button class="use-btn" onclick="useItem('${itemId}')">Use</button>`;
+        } else if (isWearable) {
+            actionButton = `<button class="toggle-btn ${isActive ? 'active' : ''}" onclick="toggleWearableItem('${itemId}')">${isActive ? 'Equipped' : 'Equip'}</button>`;
+        } else {
+            actionButton = '<span class="owned-badge">Owned</span>';
+        }
+        
         return `
-            <div class="inventory-item-card">
+            <div class="inventory-item-card ${isActive ? 'active' : ''}">
                 <div class="item-icon">${item.icon}</div>
                 <div class="item-name">${item.name}</div>
                 <div class="item-description">${item.description}</div>
                 ${effects ? `<div class="item-effects">${effects}</div>` : ''}
-                ${isConsumable ? `<button class="use-btn" onclick="useItem('${itemId}')">Use</button>` : '<span class="owned-badge">Owned</span>'}
+                ${actionButton}
             </div>
         `;
     }).filter(html => html !== '').join('');
@@ -256,6 +317,27 @@ function animateCoinGain() {
     }, 500);
 }
 
+// Toggle Wearable Item
+async function toggleWearableItem(itemId) {
+    if (!petData.activeItems) {
+        petData.activeItems = [];
+    }
+    
+    const index = petData.activeItems.indexOf(itemId);
+    if (index > -1) {
+        // Remove item (unequip)
+        petData.activeItems.splice(index, 1);
+    } else {
+        // Add item (equip)
+        petData.activeItems.push(itemId);
+    }
+    
+    await savePetData();
+    renderInventory();
+    showPurchaseFeedback(petData.activeItems.includes(itemId) ? 'Item equipped!' : 'Item unequipped!', 'success');
+}
+
 // Make functions globally accessible
 window.buyItem = buyItem;
 window.useItem = useItem;
+window.toggleWearableItem = toggleWearableItem;

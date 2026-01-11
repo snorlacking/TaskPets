@@ -43,7 +43,8 @@ const userSchema = new mongoose.Schema({
         itemsUsed: Number,
         lastStatUpdate: Number,
         maxHealth: Number,
-        maxHappiness: Number
+        maxHappiness: Number,
+        activeItems: Array
     },
     totalCoinsGained: {
         type: Number,

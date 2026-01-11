@@ -1,7 +1,7 @@
 {
-  "name": "pet-task-list",
+  "name": "taskpets",
   "version": "1.0.0",
-  "description": "A pet-centered task list application with Gemini AI integration",
+  "description": "TaskPets - A pet-centered task list application with Gemini AI integration",
   "main": "",
   "scripts": {
     "start": "echo 'No backend. Frontend only.'",

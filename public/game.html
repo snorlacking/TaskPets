@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pet Task List</title>
+    <title>TaskPets</title>
         <link rel="stylesheet" href="shared.css">
         <link rel="stylesheet" href="game.css">
         <!-- TEMP: include legacy styles to restore appearance while splitting is finalized -->
@@ -116,7 +116,14 @@
                 <button id="import-tasks-btn" class="import-tasks-btn">Import Tasks</button>
             </div>
             <input type="file" id="import-file-input" accept=".ics" style="display: none;">
-            
+            <form id="task-form" class="task-form">
+                <input type="text" id="task-input" class="task-input" placeholder="Enter a task..." required>
+                <button type="submit" class="add-task-btn">Add Task</button>
+            </form>
+            <div id="task-list" class="task-list"></div>
+        </section>
+    </main>
+
     <!-- Import Modal -->
     <div id="import-modal" class="modal">
         <div class="modal-content">
@@ -135,13 +142,6 @@
             </div>
         </div>
     </div>
-            <form id="task-form" class="task-form">
-                <input type="text" id="task-input" class="task-input" placeholder="Enter a task..." required>
-                <button type="submit" class="add-task-btn">Add Task</button>
-            </form>
-            <div id="task-list" class="task-list"></div>
-        </section>
-    </main>
 
     <!-- Timer Modal -->
     <div id="timer-modal" class="modal">

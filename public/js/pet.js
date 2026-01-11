@@ -54,10 +54,38 @@ function renderPetVisualCompact() {
     const isHappy = petData.happiness > 50;
     let color = isHealthy ? '#4ade80' : '#f87171';
     
+    // Check active items
+    const activeItems = petData.activeItems || [];
+    const hasHat = activeItems.includes('hat');
+    const hasBowTie = activeItems.includes('bow-tie');
+    const hasTie = activeItems.includes('tie');
+    
+    let accessories = '';
+    
+    // Hat (on head)
+    if (hasHat) {
+        accessories += `<rect x="60" y="20" width="80" height="25" rx="5" fill="#1f2937" opacity="0.9"/>`;
+        accessories += `<rect x="65" y="25" width="70" height="15" rx="3" fill="#374151"/>`;
+    }
+    
+    // Bow tie (on body)
+    if (hasBowTie) {
+        accessories += `<circle cx="95" cy="105" r="8" fill="#ef4444"/>`;
+        accessories += `<circle cx="105" cy="105" r="8" fill="#ef4444"/>`;
+        accessories += `<polygon points="100,105 95,115 105,115" fill="#ef4444"/>`;
+    }
+    
+    // Tie (on body)
+    if (hasTie) {
+        accessories += `<polygon points="100,85 95,105 100,120 105,105" fill="#1f2937"/>`;
+        accessories += `<rect x="98" y="85" width="4" height="8" fill="#374151"/>`;
+    }
+    
     petVisual.innerHTML = `
         <svg width="${size}" height="${size}" viewBox="0 0 200 200" style="transform: scale(${scale})">
             <circle cx="100" cy="120" r="60" fill="${color}" opacity="0.9"/>
             <circle cx="100" cy="60" r="45" fill="${color}"/>
+            ${accessories}
             <circle cx="85" cy="55" r="8" fill="#1f2937"/>
             <circle cx="115" cy="55" r="8" fill="#1f2937"/>
             <path d="M 80 70 Q 100 ${isHappy ? 75 : 80} 120 70" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round"/>
@@ -78,10 +106,38 @@ function renderPetVisual() {
     const isHappy = petData.happiness > 50;
     let color = isHealthy ? '#4ade80' : '#f87171';
     
+    // Check active items
+    const activeItems = petData.activeItems || [];
+    const hasHat = activeItems.includes('hat');
+    const hasBowTie = activeItems.includes('bow-tie');
+    const hasTie = activeItems.includes('tie');
+    
+    let accessories = '';
+    
+    // Hat (on head)
+    if (hasHat) {
+        accessories += `<rect x="60" y="20" width="80" height="25" rx="5" fill="#1f2937" opacity="0.9"/>`;
+        accessories += `<rect x="65" y="25" width="70" height="15" rx="3" fill="#374151"/>`;
+    }
+    
+    // Bow tie (on body)
+    if (hasBowTie) {
+        accessories += `<circle cx="95" cy="105" r="8" fill="#ef4444"/>`;
+        accessories += `<circle cx="105" cy="105" r="8" fill="#ef4444"/>`;
+        accessories += `<polygon points="100,105 95,115 105,115" fill="#ef4444"/>`;
+    }
+    
+    // Tie (on body)
+    if (hasTie) {
+        accessories += `<polygon points="100,85 95,105 100,120 105,105" fill="#1f2937"/>`;
+        accessories += `<rect x="98" y="85" width="4" height="8" fill="#374151"/>`;
+    }
+    
     petVisual.innerHTML = `
         <svg width="${size}" height="${size}" viewBox="0 0 200 200" style="transform: scale(${scale})">
             <circle cx="100" cy="120" r="60" fill="${color}" opacity="0.9"/>
             <circle cx="100" cy="60" r="45" fill="${color}"/>
+            ${accessories}
             <circle cx="85" cy="55" r="8" fill="#1f2937"/>
             <circle cx="115" cy="55" r="8" fill="#1f2937"/>
             <path d="M 80 70 Q 100 ${isHappy ? 75 : 80} 120 70" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round"/>

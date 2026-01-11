@@ -41,4 +41,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             }, 2000);
         }
     }
+    
+    // Logout button
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    window.location.href = 'login.html';
+                } else {
+                    alert('Failed to logout. Please try again.');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Still redirect even if request fails
+                window.location.href = 'login.html';
+            }
+        });
+    }
 });
