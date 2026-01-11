@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — Habits</title>
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="login.css" />
+  <meta name="theme-color" content="#667eea" />
+  <style> /* small override so topbar looks good on auth */
+    .topbar { position: sticky; top:0 }
+  </style>
+</head>
+<body class="auth-page">
+  <header class="topbar">
+    <div class="brand"><a href="/">Habits</a></div>
+  </header>
+
+  <main>
+    <section class="auth-card" aria-labelledby="authTitle">
+      <h1 id="authTitle" class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to access your habits, pet, and progress.</p>
+
+      <form id="loginForm" class="auth-form">
+        <label class="visually-hidden" for="username">Display name</label>
+        <input id="username" name="username" type="text" placeholder="Your display name" required autocomplete="name" />
+        <button type="submit" class="primary-btn" id="submitBtn">Sign in</button>
+      </form>
+
+      <div class="divider"><span>or</span></div>
+
+      <a href="#" id="googleBtn" class="google-btn" title="Google sign-in (coming soon)">
+        <svg viewBox="0 0 533.5 544.3" aria-hidden="true" focusable="false">
+          <path fill="#4285F4" d="M533.5 278.4c0-18.5-1.6-36.6-4.8-54.1H272v102.3h146.9c-6.3 34.1-25.2 62.9-53.9 82.1v68.4h87.1c50.9-46.9 82.4-116 82.4-198.7z"/>
+          <path fill="#34A853" d="M272 544.3c73.7 0 135.6-24.6 180.8-66.8l-87.1-68.4c-24.2 16.3-55 25.8-93.7 25.8-71.9 0-132.8-48.6-154.6-114.1H28.7v71.7C73 481.5 166 544.3 272 544.3z"/>
+          <path fill="#FBBC05" d="M117.4 326.8c-10.9-32.5-10.9-67.6 0-100.1V155h-88.7C9.2 203.2 0 236.5 0 272s9.2 68.8 28.7 117l88.7-62.2z"/>
+          <path fill="#EA4335" d="M272 107.6c39 0 74 13.4 101.6 39.7l76.3-76.3C405.6 24.8 344 0 272 0 166 0 73 62.8 28.7 155l88.7 71.7C139.2 156.2 200.1 107.6 272 107.6z"/>
+        </svg>
+        <span>Sign in with Google</span>
+      </a>
+
+      <p class="auth-foot">No account needed for this demo — enter any name to try it.</p>
+    </section>
+  </main>
+
+  <script src="login.js"></script>
+</body>
+</html>

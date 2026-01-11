@@ -1,0 +1,81 @@
+/* Styles specific to the main game UI (game.html) */
+
+.top-bar {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 101;
+}
+
+.top-bar .right-controls {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+/* Pet Section Expanded */
+.pet-section-expanded {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.pet-container-expanded { display:flex; align-items:center; gap:2rem; max-width:1200px; margin:0 auto }
+.pet-visual-expanded { width:300px; height:300px; display:flex; align-items:center; justify-content:center; animation:breathe 3s ease-in-out infinite }
+.pet-info-expanded { display:flex; flex-direction:column; gap:0.5rem; min-width:150px }
+.pet-stats-expanded { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; flex:1 }
+.pet-stats-expanded .stat-bar label { font-size:1.1rem; font-weight:700 }
+.pet-stats-expanded .stat-bar-container { height:40px; border-radius:12px }
+.pet-stats-expanded .stat-value { font-size:1.1rem; font-weight:700 }
+
+/* Header Compact (shown when pet section collapsed) */
+.header { background: rgba(255,255,255,0.95); padding:1rem 2rem; display:none; align-items:center; box-shadow:0 2px 10px rgba(0,0,0,0.1); position:sticky; top:70px; z-index:100 }
+.header-compact { display:none }
+.pet-bar { display:flex; align-items:center; gap:1rem; width:100% }
+.pet-visual-small { width:80px; height:80px; display:flex; align-items:center; justify-content:center; transition:transform .5s }
+.pet-info-compact { display:flex; flex-direction:column; gap:0.25rem }
+.pet-name-input-compact { font-size:1rem; font-weight:bold; border:2px solid #e5e7eb; border-radius:6px; padding:0.25rem 0.5rem; background:transparent; width:120px }
+.growth-stage-compact { font-size:0.75rem; color:#6b7280 }
+.pet-stats-compact { display:flex; gap:1rem; align-items:center; flex:1; justify-content:space-around }
+.stat-bar-compact { display:flex; flex-direction:column; gap:0.25rem; min-width:50px }
+.stat-bar-compact label { font-size:0.75rem; text-align:center; font-weight:600 }
+.stat-bar-container-compact { position:relative; background:#e5e7eb; border-radius:6px; height:20px; overflow:hidden; display:flex; align-items:center; min-width:80px; flex:1 }
+.stat-bar-container-compact .stat-bar-fill { position:absolute; left:0; top:0; bottom:0; height:100%; border-radius:6px; transition:width .5s; z-index:0 }
+.stat-value-compact { position:absolute; right:2px; font-size:0.7rem; font-weight:700; color:#0b1220; z-index:2 }
+
+@keyframes breathe { 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.05) } }
+
+/* Pet visual and general stat bar styles */
+.pet-visual svg { width:100%; height:100% }
+.pet-name-input { font-size:1.5rem; font-weight:bold; text-align:center; border:2px solid #e5e7eb; border-radius:8px; padding:0.5rem; background:transparent }
+.growth-stage { margin-top:0.5rem; color:#6b7280; font-size:0.9rem }
+.pet-stats { width:100%; display:flex; flex-direction:column; gap:1rem }
+.stat-bar { display:flex; flex-direction:column; gap:0.5rem }
+.stat-bar label { font-weight:600; font-size:0.9rem; color:#4b5563 }
+.stat-bar-container { position:relative; background:#e5e7eb; border-radius:10px; height:30px; overflow:hidden; display:flex; align-items:center }
+.stat-bar-fill { height:100%; border-radius:10px; transition:width .5s ease, background-color .3s; display:flex; align-items:center; padding:0 0.5rem }
+.stat-bar-fill.health{ background:linear-gradient(90deg,#ef4444,#f87171) }
+.stat-bar-fill.happiness{ background:linear-gradient(90deg,#fbbf24,#fcd34d) }
+.stat-bar-fill.hunger{ background:linear-gradient(90deg,#f97316,#fb923c) }
+.stat-bar-fill.energy{ background:linear-gradient(90deg,#3b82f6,#60a5fa) }
+.stat-value { position:absolute; right:0.5rem; color:#1f2937; font-weight:600; font-size:0.9rem; z-index:1 }
+
+/* Task section and modals */
+.task-section { background: rgba(255,255,255,0.95); border-radius:20px; padding:2rem; box-shadow:0 10px 30px rgba(0,0,0,0.2) }
+.task-section h2 { color:#1f2937 }
+.task-form { display:flex; gap:1rem; margin-bottom:2rem }
+.task-input { flex:1; padding:0.75rem; border:2px solid #e5e7eb; border-radius:8px }
+
+.modal { display:none }
+.modal.active { display:block }
+
+/* Main container for game page */
+.main-container { max-width:1200px; margin:2rem auto; padding:0 2rem }
+
+@media (max-width:968px) { .header{ flex-direction:column; align-items:flex-start; gap:1rem } .pet-bar{ width:100%; flex-wrap:wrap } .pet-stats-compact{ flex-wrap:wrap } }

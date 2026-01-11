@@ -1,0 +1,26 @@
+/* Styles specific to product overview (home.html) */
+.topbar {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(6px);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+.topbar .brand a { color:#fff; font-weight:700; font-size:1.25rem; text-decoration:none }
+#userArea, #userArea a, #userArea span { color: rgba(255,255,255,0.9); font-weight:600 }
+.container { max-width:1100px; margin:3.25rem auto; padding:2rem; color:#e6eef8 }
+.container h1 { font-size:2.25rem; margin-bottom:0.5rem; color:#fff }
+.lead { color: rgba(230,238,248,0.85); margin-bottom:1.5rem }
+#overviewCards { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; margin-top:1.5rem }
+#overviewCards article { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border-radius:16px; padding:1.25rem; box-shadow:0 6px 18px rgba(12,18,36,0.28) }
+#overviewCards article h3 { color:#fff }
+#overviewCards article p { color: rgba(230,238,248,0.9); font-size:0.97rem }
+#overviewCards article:hover { transform:translateY(-6px); box-shadow:0 14px 40px rgba(12,18,36,0.45) }
+#userPanel { margin-top:2rem; background: rgba(255,255,255,0.03); border-radius:12px; padding:1rem }
+
+@media (max-width:900px) { #overviewCards{ grid-template-columns:1fr } .container{ padding:1rem; margin-top:2rem } .topbar{ padding:0.75rem 1rem } }

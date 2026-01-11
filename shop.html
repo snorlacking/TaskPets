@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Shop</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="shop.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <button id="back-button" class="back-button">← Back</button>
+        <div class="coin-counter">
+            <span class="coin-icon">🪙</span>
+            <span id="coin-amount">0</span> coins
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="shop-container">
+        <h1 class="shop-title">Pet Shop</h1>
+        
+        <!-- Category Navigation -->
+        <div class="shop-categories">
+            <button class="category-btn active" data-category="all">All</button>
+            <button class="category-btn" data-category="food">Food</button>
+            <button class="category-btn" data-category="toys">Toys</button>
+            <button class="category-btn" data-category="treats">Treats</button>
+            <button class="category-btn" data-category="decorations">Decorations</button>
+            <button class="category-btn" data-category="upgrades">Upgrades</button>
+        </div>
+
+        <!-- Shop Items Grid -->
+        <div id="shop-items" class="shop-items-grid"></div>
+
+        <!-- Inventory Section -->
+        <section class="inventory-section">
+            <h2>Your Inventory</h2>
+            <div id="inventory-items" class="inventory-grid"></div>
+            <p id="empty-inventory" class="empty-message" style="display: none;">Your inventory is empty. Buy some items!</p>
+        </section>
+
+        <!-- Purchase Feedback -->
+        <div id="purchase-feedback" class="purchase-feedback"></div>
+    </main>
+
+    <script src="shop.js"></script>
+</body>
+</html>

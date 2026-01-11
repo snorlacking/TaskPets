@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Habits — Overview</title>
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="home.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><a href="/">Habits</a></div>
+    <nav id="userArea">
+      <a href="/login.html" class="shop-button">Get started</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Product overview</h1>
+  <p class="lead">Track habits, complete tasks, care for your pet, and get AI-powered suggestions (Gemini integration).</p>
+  <p><a href="/login.html" class="shop-button">Sign in / Try it</a></p>
+    <section id="overviewCards">
+      <article>
+        <h3>Tasks & Progress</h3>
+        <p>Log subtasks and proofs, track progress over time.</p>
+      </article>
+      <article>
+        <h3>Pet & Gamification</h3>
+        <p>Keep your pet happy by completing habits. Earn rewards and see your pet grow.</p>
+      </article>
+      <article>
+        <h3>AI Assistance</h3>
+        <p>Use Gemini to generate helpful suggestions for your habits.</p>
+      </article>
+    </section>
+
+    <section id="userPanel" style="margin-top:2rem;">
+      <h2>Your session</h2>
+      <div id="sessionInfo">Checking session…</div>
+      <button id="logoutBtn" style="display:none;">Log out</button>
+    </section>
+  </main>
+
+  <script>
+    async function refreshSession() {
+      const el = document.getElementById('sessionInfo');
+      const nav = document.getElementById('userArea');
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        if (data.user) {
+          el.textContent = `Signed in as ${data.user.name}`;
+          nav.innerHTML = `<span>${data.user.name}</span> | <a id="logoutLink" href="#">Logout</a>`;
+          document.getElementById('logoutBtn').style.display = 'inline-block';
+          document.getElementById('logoutLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.reload();
+          });
+        } else {
+          el.textContent = 'Not signed in';
+          nav.innerHTML = `<a href="/login.html">Login</a>`;
+        }
+      } catch (err) {
+        el.textContent = 'Error checking session';
+        console.error(err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshSession();
+      document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        window.location.reload();
+      });
+    });
+  </script>
+</body>
+</html>

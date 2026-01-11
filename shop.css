@@ -1,0 +1,16 @@
+/* Shop page specific styles */
+.header { background: rgba(255,255,255,0.95); padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 10px rgba(0,0,0,0.1); position:sticky; top:0; z-index:101 }
+.back-button { background:transparent; border:none; font-size:1rem; cursor:pointer }
+.shop-container { max-width:1100px; margin:2rem auto; padding:1rem }
+.shop-title { font-size:1.75rem; margin-bottom:1rem }
+.shop-categories { display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap }
+.category-btn { padding:0.5rem 1rem; background:#e5e7eb; color:#1f2937; border:none; border-radius:8px }
+.category-btn.active, .category-btn:hover { background:#667eea; color:white }
+.shop-items-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem }
+.shop-item-card { background:#f9fafb; border:2px solid #e5e7eb; border-radius:12px; padding:1rem; display:flex; flex-direction:column; gap:0.5rem }
+.shop-item-card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.1); transform:translateY(-2px) }
+.item-icon { font-size:3rem; text-align:center }
+.item-name { font-weight:600 }
+.item-description { font-size:0.85rem; color:#6b7280 }
+.item-price { font-weight:600; color:#f59e0b; display:flex; align-items:center; gap:0.25rem }
+.buy-btn { padding:0.5rem; background:#10b981; color:white; border:none; border-radius:8px }

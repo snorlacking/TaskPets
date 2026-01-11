@@ -1,0 +1,40 @@
+/* Shared base styles for the app */
+* { box-sizing: border-box; margin:0; padding:0 }
+html,body { height:100%; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #1f2937;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Utility */
+.visually-hidden { position:absolute !important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap }
+
+/* Common buttons */
+.shop-button {
+    padding: 0.75rem 1.5rem;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+.shop-button:hover { background:#5568d3 }
+
+/* Coin / header bits used across pages */
+.coin-counter { display:flex; align-items:center; gap:0.5rem; font-weight:700 }
+.coin-icon { font-size:1.6rem }
+
+/* Modal action buttons shared */
+.modal-actions { display:flex; gap:1rem; margin-top:1rem }
+.submit-btn { flex:1; padding:0.75rem; background:#667eea; color:#fff; border:none; border-radius:8px }
+.submit-btn:hover { background:#5568d3 }
+.cancel-btn { flex:1; padding:0.75rem; background:#e5e7eb; color:#1f2937; border:none; border-radius:8px }
+
+/* Small responsive helper */
+@media (max-width: 600px) { .hide-xs { display:none } }

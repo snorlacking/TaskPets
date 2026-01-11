@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Task List</title>
+        <link rel="stylesheet" href="shared.css">
+        <link rel="stylesheet" href="game.css">
+        <!-- TEMP: include legacy styles to restore appearance while splitting is finalized -->
+        <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Top Bar (Always visible) -->
+    <header class="top-bar">
+        <div class="coin-counter">
+            <span class="coin-icon">🪙</span>
+            <span id="coin-amount">0</span> coins
+        </div>
+        <div class="right-controls">
+            <a href="shop.html" id="shop-button" class="shop-button">Shop</a>
+            <a href="profile.html" id="profile-button" class="shop-button profile-button">Profile</a>
+        </div>
+    </header>
+    
+    <!-- Pet Section (Collapsible) -->
+    <div id="pet-section-expanded" class="pet-section-expanded">
+        <div class="pet-container-expanded">
+            <div id="pet-visual" class="pet-visual-expanded">
+                <!-- Pet SVG will be rendered here -->
+            </div>
+            <div class="pet-info-expanded">
+                <input type="text" id="pet-name" class="pet-name-input" value="My Pet" placeholder="Pet Name">
+                <div class="growth-stage">Stage: <span id="growth-stage-text">Baby</span></div>
+            </div>
+            <div class="pet-stats-expanded">
+                <div class="stat-bar">
+                    <label>Health</label>
+                    <div class="stat-bar-container">
+                        <div id="health-bar" class="stat-bar-fill health" style="width: 100%"></div>
+                        <span class="stat-value" id="health-value">100</span>
+                    </div>
+                </div>
+                <div class="stat-bar">
+                    <label>Happiness</label>
+                    <div class="stat-bar-container">
+                        <div id="happiness-bar" class="stat-bar-fill happiness" style="width: 100%"></div>
+                        <span class="stat-value" id="happiness-value">100</span>
+                    </div>
+                </div>
+                <div class="stat-bar">
+                    <label>Hunger</label>
+                    <div class="stat-bar-container">
+                        <div id="hunger-bar" class="stat-bar-fill hunger" style="width: 100%"></div>
+                        <span class="stat-value" id="hunger-value">100</span>
+                    </div>
+                </div>
+                <div class="stat-bar">
+                    <label>Energy</label>
+                    <div class="stat-bar-container">
+                        <div id="energy-bar" class="stat-bar-fill energy" style="width: 100%"></div>
+                        <span class="stat-value" id="energy-value">100</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Compact Header Bar (Shows when scrolled)
+    <header id="header-compact" class="header header-compact">
+        <div class="pet-bar">
+            <div id="pet-visual-compact" class="pet-visual-small">
+            </div>
+            <div class="pet-info-compact">
+                <input type="text" id="pet-name-compact" class="pet-name-input-compact" value="My Pet" placeholder="Pet Name">
+                <span class="growth-stage-compact">Stage: <span id="growth-stage-text-compact">Baby</span></span>
+            </div>
+            <div class="pet-stats-compact">
+                <div class="stat-bar-compact">
+                    <label>H</label>
+                    <div class="stat-bar-container-compact">
+                        <div id="health-bar-compact" class="stat-bar-fill health" style="width: 100%"></div>
+                        <span class="stat-value-compact" id="health-value-compact">100</span>
+                    </div>
+                </div>
+                <div class="stat-bar-compact">
+                    <label>😊</label>
+                    <div class="stat-bar-container-compact">
+                        <div id="happiness-bar-compact" class="stat-bar-fill happiness" style="width: 100%"></div>
+                        <span class="stat-value-compact" id="happiness-value-compact">100</span>
+                    </div>
+                </div>
+                <div class="stat-bar-compact">
+                    <label>🍽</label>
+                    <div class="stat-bar-container-compact">
+                        <div id="hunger-bar-compact" class="stat-bar-fill hunger" style="width: 100%"></div>
+                        <span class="stat-value-compact" id="hunger-value-compact">100</span>
+                    </div>
+                </div>
+                <div class="stat-bar-compact">
+                    <label>⚡</label>
+                    <div class="stat-bar-container-compact">
+                        <div id="energy-bar-compact" class="stat-bar-fill energy" style="width: 100%"></div>
+                        <span class="stat-value-compact" id="energy-value-compact">100</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+-->
+    <!-- Main Container -->
+    <main class="main-container">
+        <!-- Task Section -->
+        <section class="task-section">
+            <div class="task-section-header">
+                <h2>Tasks</h2>
+                <button id="import-tasks-btn" class="import-tasks-btn">Import Tasks</button>
+            </div>
+            <input type="file" id="import-file-input" accept=".ics" style="display: none;">
+            
+    <!-- Import Modal -->
+    <div id="import-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Calendar</h2>
+                <button class="close-btn" id="close-import">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Import tasks from a calendar (.ics file or URL):</p>
+                <input type="url" id="import-url-input" class="task-input" placeholder="Paste calendar URL here...">
+                <div class="modal-actions">
+                    <button id="import-from-url-btn" class="submit-btn">Import from URL</button>
+                    <button id="import-from-file-btn" class="submit-btn">Import from File</button>
+                    <button id="cancel-import" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+            <form id="task-form" class="task-form">
+                <input type="text" id="task-input" class="task-input" placeholder="Enter a task..." required>
+                <button type="submit" class="add-task-btn">Add Task</button>
+            </form>
+            <div id="task-list" class="task-list"></div>
+        </section>
+    </main>
+
+    <!-- Timer Modal -->
+    <div id="timer-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Working on Task</h2>
+                <button class="close-btn" onclick="pauseTimer(currentTaskInfo?.id)">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <div id="pet-visual-modal" style="margin: 1rem auto;"></div>
+                <p id="timer-task-description" style="font-weight: 600; margin: 1rem 0;"></p>
+                <div id="timer-modal-display" style="font-size: 2rem; font-weight: bold; color: #3b82f6; margin: 1rem 0;">0:00</div>
+                <button class="submit-btn" onclick="pauseTimer(currentTaskInfo?.id)">Pause Timer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Info Modal -->
+    <div id="info-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>More Information Needed</h2>
+                <button class="close-btn" id="close-info">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="info-message"></p>
+                <input type="text" id="additional-info" class="task-input" placeholder="Add more details...">
+                <div class="modal-actions">
+                    <button id="submit-info" class="submit-btn">Update Task</button>
+                    <button id="skip-info" class="cancel-btn">Skip</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Due Date Modal -->
+    <div id="due-date-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Set Due Date</h2>
+                <button class="close-btn" id="close-due-date">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Add a due date for this task (optional):</p>
+                <input type="date" id="due-date-input" class="task-input">
+                <div class="modal-actions">
+                    <button id="save-due-date" class="submit-btn">Save</button>
+                    <button id="skip-due-date" class="cancel-btn">Skip</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Update Modal -->
+    <div id="progress-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Update Progress</h2>
+                <button class="close-btn" id="close-progress">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Describe what you've accomplished:</p>
+                <textarea id="progress-description" class="progress-textarea" placeholder="What have you done so far?"></textarea>
+                <div id="progress-subtasks-section">
+                    <p style="margin-top: 1rem; font-weight: 600;">Completed Subtasks:</p>
+                    <div id="progress-subtasks-list"></div>
+                </div>
+                <div id="progress-result" class="progress-result"></div>
+                <div class="modal-actions">
+                    <button id="all-done-btn" class="submit-btn" style="background: #10b981;">Complete Task</button>
+                    <button id="update-progress-btn" class="submit-btn">Update Progress</button>
+                    <button id="cancel-progress" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/pet.js"></script>
+    <script src="js/subtasks.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/progress.js"></script>
+    <script src="js/tasks.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
