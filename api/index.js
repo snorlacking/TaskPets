@@ -41,16 +41,16 @@ const progressRoutes = require('../backend/routes/progress');
 const importRoutes = require('../backend/routes/import');
 const authRoutes = require('../backend/routes/auth');
 
-// Register routes
-app.use('/api', completenessRoutes);
-app.use('/api', difficultyRoutes);
-app.use('/api', subtasksRoutes);
-app.use('/api', progressRoutes);
-app.use('/api', importRoutes);
-app.use('/api/auth', authRoutes);
+// Register routes (without /api prefix since Vercel already routes /api/* to this function)
+app.use('/', completenessRoutes);
+app.use('/', difficultyRoutes);
+app.use('/', subtasksRoutes);
+app.use('/', progressRoutes);
+app.use('/', importRoutes);
+app.use('/auth', authRoutes);
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 

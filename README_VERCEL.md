@@ -28,6 +28,7 @@ This project has been configured to work with Vercel's serverless platform.
 - **Sessions**: Sessions use memory storage, so they won't persist across serverless function invocations. For production, consider using a database or external session store.
 - **Static Files**: All static files (HTML, CSS, JS) are served automatically by Vercel
 - **API Routes**: All API routes are handled by the serverless function in `api/index.js`
+- **Route Configuration**: Routes in the serverless function don't include the `/api` prefix since Vercel routes `/api/*` to the function automatically
 
 ## Local Development
 
