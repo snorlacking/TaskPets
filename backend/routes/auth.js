@@ -119,6 +119,18 @@ router.post('/login', async (req, res) => {
             username: user.username
         };
         
+        // Explicitly save session before sending response (critical for serverless)
+        await new Promise((resolve, reject) => {
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Error saving session during login:', err);
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+        
         res.json({ 
             user: { 
                 id: user._id.toString(), 
@@ -134,15 +146,28 @@ router.post('/login', async (req, res) => {
 // GET /api/auth/me
 router.get('/me', async (req, res) => {
     try {
+        console.log('GET /auth/me - checking session');
+        console.log('req.session exists:', !!req.session);
+        console.log('req.session.user:', req.session?.user);
+        console.log('req.headers.cookie:', req.headers.cookie);
+        
         if (req.session && req.session.user) {
+            console.log('Session found, looking up user:', req.session.user.id);
             const user = await User.findById(req.session.user.id).select('-password');
             if (user) {
+                console.log('User found:', user.username);
                 return res.json({ user: { id: user._id.toString(), username: user.username } });
+            } else {
+                console.log('User not found in database');
             }
+        } else {
+            console.log('No session or no user in session');
         }
+        console.log('Returning user: null');
         res.status(200).json({ user: null });
     } catch (error) {
         console.error('Get user error:', error);
+        console.error('Error stack:', error.stack);
         res.status(200).json({ user: null });
     }
 });
