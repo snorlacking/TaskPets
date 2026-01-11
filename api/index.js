@@ -43,8 +43,15 @@ if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_a
 
 // Middleware
 app.use(cors({
-    origin: true,
-    credentials: true
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        // Allow all origins in production (Vercel)
+        callback(null, true);
+    },
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Set-Cookie']
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
@@ -77,8 +84,8 @@ const sessionConfig = {
     store: sessionStore,
     cookie: {
         maxAge: 24 * 60 * 60 * 1000, // 1 day
-        sameSite: 'lax',
-        secure: true, // Vercel uses HTTPS, so always secure
+        sameSite: 'none', // Required for cross-origin requests (Vercel)
+        secure: true, // Required when sameSite is 'none'
         httpOnly: true, // Prevent XSS attacks
         path: '/'
     }
