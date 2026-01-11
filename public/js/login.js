@@ -30,6 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
         loginBtn.textContent = 'Signing in...';
         
         try {
+            console.log('Attempting login...');
+            console.log('API_BASE_URL:', API_BASE_URL);
+            console.log('Login endpoint:', `${API_BASE_URL}/auth/login`);
+            
             const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -37,15 +41,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ username, password })
             });
             
+            console.log('Login response status:', response.status);
+            console.log('Login response ok:', response.ok);
+            console.log('Login response headers:', Object.fromEntries(response.headers.entries()));
+            
             const data = await response.json();
+            console.log('Login response data:', data);
             
             if (!response.ok) {
+                console.error('Login failed:', data);
                 showError(data.error || 'Login failed');
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Sign In';
                 return;
             }
             
+            console.log('Login successful, redirecting to game.html');
             // Redirect to game
             window.location.href = 'game.html';
         } catch (error) {

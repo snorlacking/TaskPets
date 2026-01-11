@@ -24,18 +24,23 @@ function getDefaultPetData() {
 // Register new user
 router.post('/register', async (req, res) => {
     try {
+        console.log('Registration attempt started');
         const { username, password } = req.body;
         
         if (!username || !password) {
+            console.log('Registration failed: missing username or password');
             return res.status(400).json({ error: 'Username and password are required' });
         }
         
+        console.log('Checking if user exists:', username);
         // Check if user already exists
         const existingUser = await User.findOne({ username });
         if (existingUser) {
+            console.log('Registration failed: username already exists');
             return res.status(409).json({ error: 'Username already exists' });
         }
         
+        console.log('Creating new user');
         // Create new user with default pet data and empty tasks
         const user = new User({
             username,
@@ -46,14 +51,32 @@ router.post('/register', async (req, res) => {
             totalTasksCompleted: 0
         });
         
+        console.log('Saving user to database');
         await user.save();
+        console.log('User saved successfully, ID:', user._id.toString());
         
         // Create session
+        console.log('Creating session, req.session exists:', !!req.session);
         req.session.user = {
             id: user._id.toString(),
             username: user.username
         };
+        console.log('Session created, user in session:', req.session.user);
         
+        // Save session
+        await new Promise((resolve, reject) => {
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Error saving session:', err);
+                    reject(err);
+                } else {
+                    console.log('Session saved successfully');
+                    resolve();
+                }
+            });
+        });
+        
+        console.log('Registration successful, sending response');
         res.json({ 
             user: { 
                 id: user._id.toString(), 
@@ -62,7 +85,10 @@ router.post('/register', async (req, res) => {
         });
     } catch (error) {
         console.error('Registration error:', error);
-        res.status(500).json({ error: 'Failed to register user', details: error.message });
+        console.error('Error stack:', error.stack);
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        res.status(500).json({ error: 'Failed to register user', details: error.message, stack: process.env.NODE_ENV === 'development' ? error.stack : undefined });
     }
 });
 

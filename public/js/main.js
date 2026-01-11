@@ -6,23 +6,40 @@ let currentTaskInfo = null;
 // Initialize UI
 document.addEventListener('DOMContentLoaded', async () => {
     // Check authentication first
+    console.log('Checking authentication...');
+    console.log('API_BASE_URL:', API_BASE_URL);
+    console.log('Fetching from:', `${API_BASE_URL}/auth/me`);
+    
     try {
         const authResponse = await fetch(`${API_BASE_URL}/auth/me`, {
             credentials: 'include'
         });
         
+        console.log('Auth response status:', authResponse.status);
+        console.log('Auth response ok:', authResponse.ok);
+        console.log('Auth response headers:', Object.fromEntries(authResponse.headers.entries()));
+        
         if (!authResponse.ok || authResponse.status === 401) {
+            console.error('Auth check failed - status:', authResponse.status);
+            const errorText = await authResponse.text();
+            console.error('Auth error response:', errorText);
             window.location.href = 'login.html';
             return;
         }
         
         const authData = await authResponse.json();
+        console.log('Auth data received:', authData);
+        
         if (!authData.user) {
+            console.error('Auth check failed - no user in response:', authData);
             window.location.href = 'login.html';
             return;
         }
+        
+        console.log('Authentication successful, user:', authData.user);
     } catch (error) {
         console.error('Auth check error:', error);
+        console.error('Error details:', error.message, error.stack);
         window.location.href = 'login.html';
         return;
     }
