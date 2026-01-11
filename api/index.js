@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
 const path = require('path');
+const { connectDB } = require('../backend/config/db');
 
 // Load environment variables (Vercel provides these automatically)
 try {
@@ -13,6 +14,14 @@ try {
 }
 
 const app = express();
+
+// Connect to MongoDB (non-blocking for serverless)
+if (process.env.MONGO_URI) {
+    connectDB().catch(err => {
+        console.error('Failed to connect to MongoDB:', err);
+        // Don't exit in serverless - allow function to continue
+    });
+}
 
 // Check for API key (warn but don't exit in serverless)
 if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
@@ -41,7 +50,7 @@ app.use(session({
 }));
 
 // Import route modules
-let completenessRoutes, difficultyRoutes, subtasksRoutes, progressRoutes, importRoutes, authRoutes;
+let completenessRoutes, difficultyRoutes, subtasksRoutes, progressRoutes, importRoutes, authRoutes, userDataRoutes;
 
 try {
     completenessRoutes = require('../backend/routes/completeness');
@@ -50,19 +59,20 @@ try {
     progressRoutes = require('../backend/routes/progress');
     importRoutes = require('../backend/routes/import');
     authRoutes = require('../backend/routes/auth');
+    userDataRoutes = require('../backend/routes/userData');
 } catch (error) {
     console.error('Error loading routes:', error);
     throw error;
 }
 
 // Register API routes with /api prefix (matching server.js structure)
-// When Vercel routes /api/(.*) to this function, the /api prefix is preserved
 app.use('/api', completenessRoutes);
 app.use('/api', difficultyRoutes);
 app.use('/api', subtasksRoutes);
 app.use('/api', progressRoutes);
 app.use('/api', importRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userDataRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

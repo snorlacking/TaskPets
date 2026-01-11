@@ -1,12 +1,19 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const path = require('path');
-require('dotenv').config();
+const { connectDB } = require('./backend/config/db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Connect to MongoDB
+connectDB().catch(err => {
+    console.error('Failed to connect to MongoDB:', err);
+    process.exit(1);
+});
 
 // Check for API key
 if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
@@ -48,6 +55,7 @@ const subtasksRoutes = require('./backend/routes/subtasks');
 const progressRoutes = require('./backend/routes/progress');
 const importRoutes = require('./backend/routes/import');
 const authRoutes = require('./backend/routes/auth');
+const userDataRoutes = require('./backend/routes/userData');
 
 // Register routes
 app.use('/api', completenessRoutes);
@@ -55,8 +63,8 @@ app.use('/api', difficultyRoutes);
 app.use('/api', subtasksRoutes);
 app.use('/api', progressRoutes);
 app.use('/api', importRoutes);
-// Auth endpoints (simple local/session-based scaffolding)
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userDataRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

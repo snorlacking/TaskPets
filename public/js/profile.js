@@ -1,19 +1,44 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    const errorDiv = document.getElementById('profile-error');
+    const loadingDiv = document.getElementById('profile-loading');
+    const contentDiv = document.getElementById('profile-content');
+    
     try {
-        const res = await fetch('/api/auth/me');
-        if (!res.ok) throw new Error('Failed to fetch user');
-        const { user } = await res.json();
-        if (!user) {
-            window.location.href = '/login.html';
+        const response = await fetch(`${API_BASE_URL}/user/profile`, {
+            credentials: 'include'
+        });
+        
+        if (response.status === 401) {
+            // Not authenticated, redirect to login
+            window.location.href = 'login.html';
             return;
         }
-        document.getElementById('profile-name').textContent = user.name;
-        document.getElementById('profile-email').textContent = user.email;
-        document.getElementById('profile-total-time').textContent = user.totalHoursSpent || 0;
-        document.getElementById('profile-total-tasks').textContent = user.totalTasksCompleted || 0;
-        document.getElementById('profile-total-coins').textContent = user.totalCoinsEarned || 0;
-    } catch (err) {
-        console.error('Failed to load profile:', err);
-        document.getElementById('profile-error').textContent = 'Failed to load profile information.';
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch profile');
+        }
+        
+        const data = await response.json();
+        
+        // Display profile data
+        document.getElementById('profile-username').textContent = data.username || 'Unknown';
+        document.getElementById('profile-coins').textContent = (data.totalCoinsGained || 0).toLocaleString();
+        document.getElementById('profile-tasks').textContent = (data.totalTasksCompleted || 0).toLocaleString();
+        
+        // Show content, hide loading
+        loadingDiv.style.display = 'none';
+        contentDiv.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading profile:', error);
+        loadingDiv.style.display = 'none';
+        errorDiv.textContent = 'Failed to load profile information.';
+        errorDiv.style.display = 'block';
+        
+        // Redirect to login after a delay if it's an auth error
+        if (error.message.includes('401') || error.message.includes('Authentication')) {
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        }
     }
 });

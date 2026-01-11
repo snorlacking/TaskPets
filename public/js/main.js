@@ -1,12 +1,36 @@
 // Global state variables
-let petData = initPetData();
-let tasks = initTasks();
+let petData;
+let tasks;
 let currentTaskInfo = null;
 
 // Initialize UI
-document.addEventListener('DOMContentLoaded', () => {
-    // Reload pet data on page load (in case we returned from shop page)
-    petData = initPetData();
+document.addEventListener('DOMContentLoaded', async () => {
+    // Check authentication first
+    try {
+        const authResponse = await fetch(`${API_BASE_URL}/auth/me`, {
+            credentials: 'include'
+        });
+        
+        if (!authResponse.ok || authResponse.status === 401) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        const authData = await authResponse.json();
+        if (!authData.user) {
+            window.location.href = 'login.html';
+            return;
+        }
+    } catch (error) {
+        console.error('Auth check error:', error);
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    // Load data
+    petData = await initPetData();
+    tasks = await initTasks();
+    
     renderPet();
     renderTasks();
     setupEventListeners();
@@ -97,47 +121,40 @@ function setupEventListeners() {
     // Info modal
     document.getElementById('close-info').addEventListener('click', () => {
         document.getElementById('info-modal').classList.remove('active');
+        currentTaskInfo = null;
     });
-    document.getElementById('skip-info').addEventListener('click', () => {
-        document.getElementById('info-modal').classList.remove('active');
-        if (currentTaskInfo) {
-            proceedWithTask(currentTaskInfo.description);
-        }
-    });
-    document.getElementById('submit-info').addEventListener('click', () => {
-        const additionalInfo = document.getElementById('additional-info').value;
-        if (currentTaskInfo) {
-            const taskDescription = additionalInfo || '';
+    document.getElementById('submit-info').addEventListener('click', async () => {
+        const additionalInfo = document.getElementById('additional-info').value.trim();
+        if (currentTaskInfo && currentTaskInfo.description) {
+            await proceedWithTask(currentTaskInfo.description, additionalInfo);
             document.getElementById('info-modal').classList.remove('active');
-            proceedWithTask(currentTaskInfo.description, taskDescription);
+            currentTaskInfo = null;
         }
     });
     
     // Progress modal
     document.getElementById('close-progress').addEventListener('click', () => {
-        cancelProgressModal();
+        document.getElementById('progress-modal').classList.remove('active');
     });
-    document.getElementById('cancel-progress').addEventListener('click', () => {
-        cancelProgressModal();
-    });
+    document.getElementById('cancel-progress').addEventListener('click', cancelProgressModal);
     document.getElementById('update-progress-btn').addEventListener('click', handleUpdateProgress);
     document.getElementById('all-done-btn').addEventListener('click', handleAllDone);
     
-    // Pet name (both views)
+    // Pet name input
     const nameInput = document.getElementById('pet-name');
     const nameInputCompact = document.getElementById('pet-name-compact');
     if (nameInput) {
-        nameInput.addEventListener('change', (e) => {
-            petData.name = e.target.value;
-            if (nameInputCompact) nameInputCompact.value = e.target.value;
+        nameInput.addEventListener('blur', (e) => {
+            petData.name = e.target.value || 'My Pet';
             savePetData();
+            renderPet();
         });
     }
     if (nameInputCompact) {
-        nameInputCompact.addEventListener('change', (e) => {
-            petData.name = e.target.value;
-            if (nameInput) nameInput.value = e.target.value;
+        nameInputCompact.addEventListener('blur', (e) => {
+            petData.name = e.target.value || 'My Pet';
             savePetData();
+            renderPet();
         });
     }
 }
@@ -158,3 +175,5 @@ window.toggleTaskMinimize = toggleTaskMinimize;
 window.handleImportTasks = handleImportTasks;
 window.handleImportFromURL = handleImportFromURL;
 window.handleImportFromFile = handleImportFromFile;
+window.handleUpdateProgress = handleUpdateProgress;
+window.handleAllDone = handleAllDone;

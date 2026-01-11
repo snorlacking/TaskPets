@@ -12,9 +12,31 @@
   </style>
 </head>
 <body class="auth-page">
-  <script>
-    // Instantly redirect to game.html, skipping login
-    window.location.replace('game.html');
-  </script>
+  <div class="auth-container">
+    <div class="auth-box">
+      <h1>Habits</h1>
+      <p class="auth-subtitle">Sign in or create an account</p>
+      
+      <div id="auth-error" class="auth-error" style="display: none;"></div>
+      
+      <form id="auth-form">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required autocomplete="username" />
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password" />
+        </div>
+        
+        <button type="submit" id="login-btn" class="btn btn-primary">Sign In</button>
+        <button type="button" id="register-btn" class="btn btn-secondary">Create Account</button>
+      </form>
+    </div>
+  </div>
+  
+  <script src="js/config.js"></script>
+  <script src="js/login.js"></script>
 </body>
 </html>

@@ -1,9 +1,37 @@
 // Initialize Pet Data
-function initPetData() {
-    const saved = localStorage.getItem('petData');
-    if (saved) {
-        return JSON.parse(saved);
+async function initPetData() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/user/data`, {
+            credentials: 'include'
+        });
+        
+        if (response.status === 401) {
+            // Not authenticated, redirect to login
+            window.location.href = 'login.html';
+            return getDefaultPetData();
+        }
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch pet data');
+        }
+        
+        const data = await response.json();
+        
+        // Return petData or default if not set
+        if (data.petData && Object.keys(data.petData).length > 0) {
+            return data.petData;
+        }
+        
+        return getDefaultPetData();
+    } catch (error) {
+        console.error('Error loading pet data:', error);
+        // Return default on error
+        return getDefaultPetData();
     }
+}
+
+// Default pet data structure
+function getDefaultPetData() {
     return {
         name: 'My Pet',
         health: 100,
@@ -22,47 +50,106 @@ function initPetData() {
 }
 
 // Initialize Tasks
-function initTasks() {
-    const saved = localStorage.getItem('tasks');
-    let tasks = saved ? JSON.parse(saved) : [];
-    
-    // Migrate existing tasks to include new fields
-    tasks = tasks.map(task => {
-        if (!task.hasOwnProperty('progress')) {
-            task.progress = 0;
+async function initTasks() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/user/data`, {
+            credentials: 'include'
+        });
+        
+        if (response.status === 401) {
+            // Not authenticated, redirect to login
+            window.location.href = 'login.html';
+            return [];
         }
-        if (!task.hasOwnProperty('subtasks')) {
-            task.subtasks = [];
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch tasks');
         }
-        if (!task.hasOwnProperty('timer')) {
-            task.timer = {
-                isRunning: false,
-                startTime: null,
-                elapsedTime: 0,
-                lastPausedAt: null
-            };
-        }
-        if (!task.hasOwnProperty('taskDescription')) {
-            task.taskDescription = '';
-        }
-        if (!task.hasOwnProperty('dueDate')) {
-            task.dueDate = null;
-        }
-        if (!task.hasOwnProperty('minimized')) {
-            task.minimized = false;
-        }
-        return task;
-    });
-    
-    return tasks;
+        
+        const data = await response.json();
+        
+        let tasks = data.tasks || [];
+        
+        // Migrate existing tasks to include new fields (if needed)
+        tasks = tasks.map(task => {
+            if (!task.hasOwnProperty('progress')) {
+                task.progress = 0;
+            }
+            if (!task.hasOwnProperty('subtasks')) {
+                task.subtasks = [];
+            }
+            if (!task.hasOwnProperty('timer')) {
+                task.timer = {
+                    isRunning: false,
+                    startTime: null,
+                    elapsedTime: 0,
+                    lastPausedAt: null
+                };
+            }
+            if (!task.hasOwnProperty('taskDescription')) {
+                task.taskDescription = '';
+            }
+            if (!task.hasOwnProperty('dueDate')) {
+                task.dueDate = null;
+            }
+            if (!task.hasOwnProperty('minimized')) {
+                task.minimized = false;
+            }
+            return task;
+        });
+        
+        return tasks;
+    } catch (error) {
+        console.error('Error loading tasks:', error);
+        // Return empty array on error
+        return [];
+    }
 }
 
 // Save Pet Data
-function savePetData() {
-    localStorage.setItem('petData', JSON.stringify(petData));
+async function savePetData() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/user/data`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ petData })
+        });
+        
+        if (response.status === 401) {
+            // Not authenticated, redirect to login
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        if (!response.ok) {
+            throw new Error('Failed to save pet data');
+        }
+    } catch (error) {
+        console.error('Error saving pet data:', error);
+    }
 }
 
 // Save Tasks
-function saveTasks() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
+async function saveTasks() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/user/data`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ tasks })
+        });
+        
+        if (response.status === 401) {
+            // Not authenticated, redirect to login
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        if (!response.ok) {
+            throw new Error('Failed to save tasks');
+        }
+    } catch (error) {
+        console.error('Error saving tasks:', error);
+    }
 }
