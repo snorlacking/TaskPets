@@ -5,6 +5,16 @@ const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
 const path = require('path');
 const { connectDB } = require('../backend/config/db');
+const mongoose = require('mongoose');
+
+// Try to load connect-mongo for MongoDB session store (optional)
+let MongoStore;
+try {
+    MongoStore = require('connect-mongo');
+} catch (e) {
+    // connect-mongo not installed, will use MemoryStore
+    MongoStore = null;
+}
 
 // Load environment variables (Vercel provides these automatically)
 try {
@@ -35,19 +45,40 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
-app.use(session({
+// Session configuration for Vercel (serverless)
+// Use MongoDB session store if MONGO_URI and connect-mongo are available (required for serverless)
+// Otherwise fall back to MemoryStore (won't persist on serverless)
+let sessionStore;
+if (process.env.MONGO_URI && MongoStore) {
+    // Use MongoDB session store for serverless (persists across invocations)
+    // connect-mongo 5.x uses mongoUrl directly
+    sessionStore = MongoStore.create({
+        mongoUrl: process.env.MONGO_URI,
+        collectionName: 'sessions'
+    });
+} else {
+    // Fallback to MemoryStore (won't work on serverless but OK for local dev)
+    sessionStore = new MemoryStore({
+        checkPeriod: 86400000 // prune expired entries every 24h
+    });
+}
+
+const sessionConfig = {
     secret: process.env.SESSION_SECRET || 'dev_secret_change_me',
     resave: false,
     saveUninitialized: false,
-    store: new MemoryStore({
-        checkPeriod: 86400000 // prune expired entries every 24h
-    }),
+    store: sessionStore,
     cookie: {
         maxAge: 24 * 60 * 60 * 1000, // 1 day
         sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production'
+        secure: true, // Vercel uses HTTPS, so always secure
+        httpOnly: true, // Prevent XSS attacks
+        path: '/'
     }
-}));
+    // Using default cookie name 'connect.sid' to match logout route
+};
+
+app.use(session(sessionConfig));
 
 // Import route modules
 let completenessRoutes, difficultyRoutes, subtasksRoutes, progressRoutes, importRoutes, authRoutes, userDataRoutes;
