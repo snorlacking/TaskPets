@@ -40,14 +40,6 @@ app.use(session({
     }
 }));
 
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, '../public')));
-
-// Redirect root to home.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public', 'home.html'));
-});
-
 // Import route modules
 let completenessRoutes, difficultyRoutes, subtasksRoutes, progressRoutes, importRoutes, authRoutes;
 
@@ -63,17 +55,26 @@ try {
     throw error;
 }
 
-// Register routes at root level (Vercel strips /api prefix when routing to api/ functions)
-app.use('/', completenessRoutes);
-app.use('/', difficultyRoutes);
-app.use('/', subtasksRoutes);
-app.use('/', progressRoutes);
-app.use('/', importRoutes);
-app.use('/auth', authRoutes);
+// Register API routes with /api prefix (matching server.js structure)
+// When Vercel routes /api/(.*) to this function, the /api prefix is preserved
+app.use('/api', completenessRoutes);
+app.use('/api', difficultyRoutes);
+app.use('/api', subtasksRoutes);
+app.use('/api', progressRoutes);
+app.use('/api', importRoutes);
+app.use('/api/auth', authRoutes);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
+});
+
+// Serve static files from public directory (after API routes)
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Redirect root to home.html (after static files)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'home.html'));
 });
 
 // Error handling middleware (must be last)
